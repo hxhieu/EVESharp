@@ -31,6 +31,7 @@ namespace EVESharp.StandaloneServer
             });
 
             builder.Services.AddSingleton<IEveTcpServer, EveTcpServer> ();
+
             #endregion
 
             // Background worker
