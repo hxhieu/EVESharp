@@ -5,6 +5,8 @@ using System.Text;
 
 namespace EVESharp.StandaloneServer.Session
 {
+    internal interface IEveTcpSession { }
+
     /// <summary>
     /// Extended `NetCoreServer.TcpSession`
     /// </summary>
@@ -12,7 +14,7 @@ namespace EVESharp.StandaloneServer.Session
     internal class EveTcpSession (
         TcpServer server,
         ILogger<EveTcpSession> logger
-    ) : TcpSession (server)
+    ) : TcpSession (server), IEveTcpSession
     {
         protected override void OnConnected ()
         {

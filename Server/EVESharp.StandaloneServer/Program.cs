@@ -2,6 +2,7 @@
 using EVESharp.StandaloneServer.Session;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace EVESharp.StandaloneServer
@@ -18,15 +19,25 @@ namespace EVESharp.StandaloneServer
             // Configuration options
             builder.Services.Configure<EveServerOptions> (builder.Configuration.GetSection (EveServerOptions.ConfigSection));
 
-            // Dependencies
-            builder.Services.AddSingleton<EveTcpServer> ();
-            builder.Services.AddSingleton<SessionManager> ();
+            #region Dependencies
+
+            // Session is an important thing and it would require a lot of services
+            builder.Services.AddTransient (services =>
+            {
+                return new EveTcpSession (
+                    services.GetRequiredService<IEveTcpServer> ().Server,
+                    services.GetRequiredService<ILogger<EveTcpSession>> ()
+                );
+            });
+
+            builder.Services.AddSingleton<IEveTcpServer, EveTcpServer> ();
+            #endregion
 
             // Background worker
             builder.Services.AddHostedService<EveServerWorker> ();
 
             // Logging
-            builder.Services.AddSerilog ((_, logging) =>
+            builder.Services.AddSerilog (logging =>
             {
                 logging.ReadFrom.Configuration (builder.Configuration);
             });

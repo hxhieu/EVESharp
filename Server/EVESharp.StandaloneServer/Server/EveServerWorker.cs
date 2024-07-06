@@ -7,19 +7,19 @@ namespace EVESharp.StandaloneServer.Server
     /// Background service to host the server
     /// </summary>
     /// <param name="logger"></param>
-    /// <param name="server">Singleton instance constructed via the service collection</param>
-    internal sealed class EveServerWorker (ILogger<EveServerWorker> logger, EveTcpServer server) : IHostedService, IHostedLifecycleService
+    /// <param name="eveServer">Singleton instance constructed via the service collection</param>
+    internal sealed class EveServerWorker (ILogger<EveServerWorker> logger, IEveTcpServer eveServer) : IHostedService, IHostedLifecycleService
     {
         public Task StartAsync (CancellationToken cancellationToken)
         {
-            server.Start ();
+            eveServer.Server.Start ();
             return Task.CompletedTask;
         }
 
         public Task StartedAsync (CancellationToken cancellationToken)
         {
             // TODO:
-            logger.LogInformation ("{Service} is listening at :{Port}", nameof (EveServerWorker), server.Port);
+            logger.LogInformation ("{Service} is listening at :{Port}", nameof (EveServerWorker), eveServer.Server.Port);
             return Task.CompletedTask;
         }
 
