@@ -29,4 +29,10 @@
         <Folder Include="Client\Notifications" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="configuration.conf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

@@ -15,3 +15,5 @@ Server/.idea
 Server/EVESharp.Orchestrator/appsettings.Development.json
 Server/EVESharp.API/appsettings.Development.json
 Server/EVESharp.API/res
+.vs
+configuration.conf
