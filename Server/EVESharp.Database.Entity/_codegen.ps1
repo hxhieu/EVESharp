@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold --no-onconfiguring -d -c EveSharpDbContext --context-dir Context -f --context-namespace EVESharp.Database.Entity.Context "$env:EVEDB_CONNECTION_STRING" "Pomelo.EntityFrameworkCore.MySql"
