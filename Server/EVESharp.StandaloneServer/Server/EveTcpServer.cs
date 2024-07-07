@@ -8,11 +8,6 @@ using System.Net.Sockets;
 
 namespace EVESharp.StandaloneServer.Server
 {
-    internal interface IEveTcpServer
-    {
-        TcpServer Server { get; }
-    }
-
     /// <summary>
     /// Extended implementation of `NetCoreServer.TcpServer`
     /// </summary>
@@ -25,9 +20,13 @@ namespace EVESharp.StandaloneServer.Server
         IServiceProvider serviceProvider
     )
         // TODO: for now it will bind 0.0.0.0
-        : TcpServer (IPAddress.Any, options.Value.ListenPort), IEveTcpServer
+        : TcpServer (IPAddress.Any, options.Value.ListenPort), IEveServer
     {
-        public TcpServer Server => this;
+        public void Initialize ()
+        {
+            logger.LogInformation ("{Service} is listening at :{Port}", nameof (EveTcpServer), Port);
+            Start ();
+        }
 
         protected override TcpSession CreateSession () =>
             // Pretty bad we need to use the service locator here because `NetCoreServer` introduces circular referencing TcpServer -> TcpSession -> TcpServer
