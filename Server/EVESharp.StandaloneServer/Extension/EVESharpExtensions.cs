@@ -20,7 +20,7 @@ namespace EVESharp.StandaloneServer
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        internal static IServiceCollection RegisterEVESharpSingleNodeMachoNet (this IServiceCollection services, ILogger logger)
+        internal static IServiceCollection AddEVESharpSingleNodeMachoNet (this IServiceCollection services, ILogger logger)
         {
             // load configuration first
             General configuration = Loader.Load <General> ("configuration.conf");

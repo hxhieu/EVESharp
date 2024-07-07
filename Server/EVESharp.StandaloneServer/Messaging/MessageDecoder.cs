@@ -5,13 +5,13 @@ using EVESharp.Types.Serialization;
 
 namespace EVESharp.StandaloneServer.Messaging
 {
-    internal interface IMessageTranslator
+    internal interface IMessageDecoder
     {
         PyDataType Decode (byte [] buffer, int bytesCount);
         byte [] Encode (PyDataType data);
     }
 
-    internal class MessageTranslator (StreamPacketizer streamPacketizer) : IMessageTranslator
+    internal class MessageDecoder (StreamPacketizer streamPacketizer) : IMessageDecoder
     {
         public PyDataType Decode (byte [] buffer, int bytesCount)
         {

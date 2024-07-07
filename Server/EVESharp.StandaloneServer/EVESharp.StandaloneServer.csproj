@@ -21,9 +21,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="**\ClientCommandManagerRegistry.cs">
+      <DependentUpon>**\ClientCommandManager.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EVESharp.EVE\EVESharp.EVE.csproj" />
     <ProjectReference Include="..\EVESharp.Node\EVESharp.Node.csproj" />
     <ProjectReference Include="..\EVESharp.Types\EVESharp.Types.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="configuration.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

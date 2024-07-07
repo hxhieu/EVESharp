@@ -108,10 +108,10 @@ public class PyTuple : PyDataType, IPyEnumerable<PyDataType>
 
         foreach (var i in mList)
         {
+            builder.Append ("\t");
             var iType = i?.GetType ();
             if (iType != null)
             {
-                builder.Append ("\t");
                 var toStr = iType.GetMethod("ToString");
                 if (toStr != null)
                 {
@@ -123,6 +123,10 @@ public class PyTuple : PyDataType, IPyEnumerable<PyDataType>
                     builder.Append ($"TODO: {iType.Name}");
                 }
                 builder.Append ($"{Environment.NewLine}");
+            }
+            else
+            {
+                builder.Append ($"NULL{Environment.NewLine}");
             }
         }
 

@@ -17,3 +17,5 @@ Server/EVESharp.API/appsettings.Development.json
 Server/EVESharp.API/res
 .vs
 configuration.conf
+INFO_SRC
+INFO_BIN

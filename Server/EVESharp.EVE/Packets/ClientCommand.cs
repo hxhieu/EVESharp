@@ -20,7 +20,13 @@ public class ClientCommand
         if (tuple.Count != 2 && tuple.Count != 3)
             throw new InvalidDataException("Expected a tuple of two or three elements");
 
-        return new ClientCommand(tuple[1] as PyString);
+        var command = tuple[0] as PyString;
+        if (tuple.Count == 3)
+        {
+            command = tuple [1] as PyString;
+        }
+
+        return new ClientCommand(command);
     }
 
     public static implicit operator PyDataType (ClientCommand command)

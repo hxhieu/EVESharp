@@ -39,7 +39,27 @@ namespace EVESharp.StandaloneServer.Session
 
         protected override void OnReceived (byte [] buffer, long offset, long size)
         {
-            messageReceivedDelegator.Received (buffer, (int)size).Wait();
+            Task.Run (async () =>
+            {
+                try
+                {
+                    await messageReceivedDelegator.Received (
+                        buffer,
+                        (int) size,
+                        (buffer) =>
+                        {
+                            SendAsync (buffer);
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError (ex, "{Error}", ex.Message);
+                    // TODO: Sent errors instead of kill the connection
+                    Disconnect ();
+                }
+            });
         }
     }
 }

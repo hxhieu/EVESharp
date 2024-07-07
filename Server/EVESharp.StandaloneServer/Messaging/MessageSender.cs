@@ -8,13 +8,18 @@ namespace EVESharp.StandaloneServer.Messaging
         Task SendAsync (PyDataType data, Func<byte [], Task> send);
     }
 
-    internal abstract class MessageSender (ILogger<MessageSender> logger, IMessageTranslator messageTranslator) : IMessageSender
+    internal class MessageSender (ILogger<MessageSender> logger, IMessageDecoder messageTranslator) : IMessageSender
     {
         public async Task SendAsync (PyDataType data, Func<byte [], Task> send)
         {
             if (send == null)
             {
-                logger.LogWarning ("{Service} attempted to call {Method} with NULL {Sender}, ignored.", GetType ().FullName, nameof (SendAsync), nameof (send));
+                logger.LogWarning (
+                    "{Service} attempted to call {Method} with NULL {Sender}, ignored.",
+                    GetType ().Name,
+                    nameof (SendAsync),
+                    nameof (send)
+                );
                 return;
             }
 
@@ -22,7 +27,7 @@ namespace EVESharp.StandaloneServer.Messaging
             {
                 var buffer = messageTranslator.Encode (data);
                 await send (buffer);
-                logger.LogDebug ("SENT {Data}", data.ToString());
+                logger.LogDebug ("SENT {Data}", data.ToString ());
             }
             catch (Exception ex)
             {

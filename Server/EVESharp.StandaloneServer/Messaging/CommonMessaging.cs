@@ -9,9 +9,9 @@ namespace EVESharp.StandaloneServer.Messaging
         Task SendHandShakeAsync (Func<byte [], Task> sender);
     }
 
-    internal class CommonMessaging (
+    internal sealed class CommonMessaging (
         ILogger<CommonMessaging> logger,
-        IMessageTranslator messageHandler
+        IMessageDecoder messageHandler
     ) : MessageSender (logger, messageHandler), ICommonMessaging
     {
         public async Task SendHandShakeAsync (Func<byte [], Task> sender)

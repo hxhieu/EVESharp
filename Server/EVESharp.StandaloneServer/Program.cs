@@ -48,12 +48,17 @@ namespace EVESharp.StandaloneServer
 
             builder.Services.AddTransient<StreamPacketizer> ();
 
-            builder.Services.AddSingleton<IMessageTranslator, MessageTranslator> ();
+            // Client command registrations
+            builder.Services.AddClientCommandRequests ();
+            builder.Services.AddSingleton<IClientCommandManager, ClientCommandManager> ();
+
+            builder.Services.AddSingleton<IMessageDecoder, MessageDecoder> ();
+            builder.Services.AddSingleton<IMessageSender, MessageSender> ();
             builder.Services.AddSingleton<ICommonMessaging, CommonMessaging> ();
-            builder.Services.AddSingleton<IMessageReceivedDelegator, MessageReceivedDelegator> ();
+            builder.Services.AddSingleton<IMessageReceivedDelegator, ReceivedMessageDelegator> ();
 
             // Default EVESharp single mode services
-            builder.Services.RegisterEVESharpSingleNodeMachoNet (seriLogger);
+            builder.Services.AddEVESharpSingleNodeMachoNet (seriLogger);
 
             // Something else
             builder.Services.AddSingleton<MachoNetNext> ();
