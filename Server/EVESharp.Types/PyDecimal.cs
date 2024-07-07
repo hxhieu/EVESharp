@@ -102,6 +102,6 @@ public class PyDecimal : PyDataType
 
     public override string ToString ()
     {
-        return this.Value.ToString (CultureInfo.InvariantCulture);
+        return $"{GetType ().Name}: {Value}";
     }
 }

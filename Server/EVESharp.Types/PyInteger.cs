@@ -16,19 +16,19 @@ public class PyInteger : PyDataType
 
     public PyInteger (long value)
     {
-        this.Value       = value;
+        this.Value = value;
         this.IntegerType = IntegerTypeEnum.Long;
     }
 
     public PyInteger (int value)
     {
-        this.Value       = value;
+        this.Value = value;
         this.IntegerType = IntegerTypeEnum.Int;
     }
 
     public PyInteger (short value)
     {
-        this.Value       = value;
+        this.Value = value;
         this.IntegerType = IntegerTypeEnum.Short;
     }
 
@@ -43,7 +43,7 @@ public class PyInteger : PyDataType
 
     public PyInteger (sbyte value)
     {
-        this.Value       = value;
+        this.Value = value;
         this.IntegerType = IntegerTypeEnum.Byte;
     }
 
@@ -239,6 +239,6 @@ public class PyInteger : PyDataType
 
     public override string ToString ()
     {
-        return this.Value.ToString ();
+        return $"{GetType ().Name}: {Value}";
     }
 }

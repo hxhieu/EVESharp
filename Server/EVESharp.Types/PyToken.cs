@@ -1,3 +1,6 @@
+using System;
+using System.Text;
+
 namespace EVESharp.Types;
 
 public class PyToken : PyDataType
@@ -43,5 +46,17 @@ public class PyToken : PyDataType
     public static bool operator != (PyToken left, PyToken right)
     {
         return !(left == right);
+    }
+
+    public override string ToString ()
+    {
+        var type = GetType ();
+        var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: [{Environment.NewLine}");
+
+        builder.Append ($"\tToken: {Token}{Environment.NewLine}");
+        builder.Append ($"\tLength: {Length.ToString()}{Environment.NewLine}");
+
+        builder.Append (']');
+        return builder.ToString ();
     }
 }

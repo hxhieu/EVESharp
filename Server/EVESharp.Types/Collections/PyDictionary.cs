@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace EVESharp.Types.Collections;
 
@@ -133,5 +135,16 @@ public class PyDictionary : PyDataType, IPyDictionaryEnumerable <PyDataType, PyD
     public PyDictionary <T1, T2> GetEnumerable <T1, T2> () where T1 : PyDataType where T2 : PyDataType
     {
         return new PyDictionary <T1, T2> (this.mDictionary);
+    }
+
+    public override string ToString ()
+    {
+        var type = GetType ();
+        var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: [{Environment.NewLine}");
+
+        // TODO:
+
+        builder.Append (']');
+        return builder.ToString ();
     }
 }

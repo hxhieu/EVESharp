@@ -8,4 +8,9 @@ public class PyNone : PyDataType
     {
         return HASH_VALUE;
     }
+
+    public override string ToString ()
+    {
+        return $"{GetType ().Name}: [ NONE ]";
+    }
 }

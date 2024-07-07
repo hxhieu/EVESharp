@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace EVESharp.Types.Collections;
 
@@ -142,5 +143,15 @@ public class PyList : PyDataType, IPyEnumerable <PyDataType>
     public PyList <T> GetEnumerable <T> () where T : PyDataType
     {
         return new PyList <T> (this.mList);
+    }
+    public override string ToString ()
+    {
+        var type = GetType ();
+        var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: [{Environment.NewLine}");
+
+        // TODO:
+
+        builder.Append (']');
+        return builder.ToString ();
     }
 }

@@ -1,4 +1,6 @@
 using EVESharp.Common.Checksum;
+using System;
+using System.Text;
 
 namespace EVESharp.Types;
 
@@ -25,5 +27,16 @@ public class PyBuffer : PyDataType
     public static implicit operator PyBuffer (byte [] value)
     {
         return new PyBuffer (value);
+    }
+
+    public override string ToString ()
+    {
+        var type = GetType ();
+        var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: [{Environment.NewLine}");
+
+        builder.Append ($"{Value.Length} bytes");
+
+        builder.Append (']');
+        return builder.ToString ();
     }
 }
