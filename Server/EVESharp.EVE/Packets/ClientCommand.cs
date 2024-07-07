@@ -8,6 +8,8 @@ public class ClientCommand
 {
     public string Command { get; }
 
+    private static PyDataType _raw;
+
     public ClientCommand (string command)
     {
         Command = command;
@@ -15,6 +17,8 @@ public class ClientCommand
 
     public static implicit operator ClientCommand (PyDataType data)
     {
+        _raw = data;
+
         PyTuple tuple = data as PyTuple;
 
         if (tuple.Count != 2 && tuple.Count != 3)
@@ -34,5 +38,10 @@ public class ClientCommand
             [1] = command.Command,
             [2] = null
         };
+    }
+
+    public override string ToString ()
+    {
+        return _raw?.ToString () ?? Command;
     }
 }

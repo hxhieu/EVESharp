@@ -8,7 +8,7 @@ namespace EVESharp.StandaloneServer.Server
 {
     internal interface IEveTcpSessionDelegator
     {
-        void Received (byte [] buffer, int bytesCount, IEveTcpSession owner);
+        void Received (PyDataType data, IEveTcpSession owner);
     }
 
     internal sealed class EveTcpSessionDelegator (
@@ -32,15 +32,13 @@ namespace EVESharp.StandaloneServer.Server
             catch { /* Intentionally ignore this so it can flow to the next one */  }
         }
 
-        public void Received (byte [] buffer, int bytesCount, IEveTcpSession owner)
+        public void Received (PyDataType data, IEveTcpSession owner)
         {
-            var data = _messageTranslator.Decode(buffer, bytesCount);
-            _logger.LogDebug ("RECEIVED {Data}", data.ToString ());
-
             ArgumentNullException.ThrowIfNull (owner, nameof (owner));
 
             // Try cascading processing the received data
             // It is pretty ugly because the implicit casts hide all of the validations
+            // Also quite important NOT to change the checking order
 
             string? delegateType = null;
             PyDataType? sentData = null;
@@ -49,14 +47,31 @@ namespace EVESharp.StandaloneServer.Server
             {
                 LowLevelVersionExchange handshake = data;
                 delegateType = nameof (LowLevelVersionExchange);
-                // TODO: Don't need to do anything with handshake received?
+                //owner.SendData (CommonPacket.None);
             });
 
             if (delegateType == null)
             {
+                // AuthenticationReq Tuple[2]
+                TryHandleMessage (() =>
+                {
+                    AuthenticationReq authReq = data;
+                    delegateType = nameof (AuthenticationReq);
+                    _logger.LogInformation("{Type} {Data}", delegateType, data.ToString());
+                    throw new NotImplementedException (nameof(AuthenticationReq));
+                });
+            }
+
+            if (delegateType == null)
+            {
+                // ClientCommand Tuple[2..3]
                 TryHandleMessage (() =>
                 {
                     ClientCommand command = data;
+                    if (string.IsNullOrWhiteSpace (command.Command.Replace ("\0", string.Empty)))
+                    {
+                        return;
+                    }
                     delegateType = nameof (ClientCommand);
                     sentData = _clientCommand.HandleCommand (command, owner);
                 });
@@ -78,8 +93,6 @@ namespace EVESharp.StandaloneServer.Server
             {
                 throw new NotImplementedException ($"Received data not yet implemented. {data}");
             }
-
-            _logger.LogDebug ("HANDLED {Type} with {SentData}", delegateType, sentData);
         }
     }
 }

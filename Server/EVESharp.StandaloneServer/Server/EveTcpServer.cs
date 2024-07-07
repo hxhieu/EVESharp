@@ -24,7 +24,7 @@ namespace EVESharp.StandaloneServer.Server
 
         // Count not logged in sessions
         public int LoginCount => Sessions.Count (x => (x.Value as IEveTcpSession)?.IsLoggedIn ?? false);
-        public int UserCount => Sessions.Count;
+        public int UserCount => Sessions.Count - LoginCount;
 
         public void Initialize ()
         {

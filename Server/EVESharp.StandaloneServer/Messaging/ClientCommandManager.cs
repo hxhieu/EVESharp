@@ -21,11 +21,12 @@ namespace EVESharp.StandaloneServer.Messaging
 
         public PyDataType? HandleCommand (ClientCommand command, IEveTcpSession owner)
         {
-            var request = _serviceProvider.GetKeyedService<IClientCommandHandler> (GetRegistryKey(command.Command))
-                ?? throw new NotImplementedException (
-                    $"{nameof(ClientCommand)} '{command.Command}' is not yet implemented"
-                );
-            return request.Handle (command, owner);
+            var handler = _serviceProvider.GetKeyedService<IClientCommandHandler> (GetRegistryKey (command.Command))
+               ?? throw new NotImplementedException (
+                   $"{nameof (ClientCommand)} '{command.Command}' is not yet implemented"
+               );
+
+            return handler.Handle (command, owner);
         }
     }
 }
