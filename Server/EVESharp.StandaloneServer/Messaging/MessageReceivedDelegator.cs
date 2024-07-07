@@ -1,5 +1,7 @@
 ﻿using EVESharp.EVE.Packets;
 using EVESharp.EVE.Types.Network;
+using EVESharp.StandaloneServer.Messaging.Command;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace EVESharp.StandaloneServer.Messaging
@@ -12,10 +14,10 @@ namespace EVESharp.StandaloneServer.Messaging
     internal class MessageReceivedDelegator (
         ILogger<MessageReceivedDelegator> logger,
         IMessageTranslator messageTranslator,
-        IServiceProvider serviceProvider
+        IMediator mediator
     ) : IMessageReceivedDelegator
     {
-        public Task Received (byte [] buffer, int bytesCount)
+        public async Task Received (byte [] buffer, int bytesCount)
         {
             try
             {
@@ -43,6 +45,12 @@ namespace EVESharp.StandaloneServer.Messaging
                         delegateType = nameof (ClientCommand);
 
                         // TODO: Stuff
+                        var test = new VipKeyCommandRequest
+                        {
+                            Data = command,
+                        };
+
+                        var resp = await mediator.Send(test);
 
                     }
                     catch { /* Intentionally ignore this so it can flow to the next one */  }
@@ -72,7 +80,6 @@ namespace EVESharp.StandaloneServer.Messaging
             {
                 logger.LogError (ex, "{Error}", ex.Message);
             }
-            return Task.CompletedTask;
         }
     }
 }

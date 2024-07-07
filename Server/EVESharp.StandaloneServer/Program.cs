@@ -29,6 +29,9 @@ namespace EVESharp.StandaloneServer
             var seriLogger = new LoggerConfiguration ().ReadFrom.Configuration (builder.Configuration).CreateLogger ();
             builder.Services.AddSerilog (seriLogger);
 
+            // Queries and handlers
+            builder.Services.AddMediatR (cfg => cfg.RegisterServicesFromAssembly (typeof (Program).Assembly));
+
             #region Dependencies
 
             // Session is an important thing and it would require a lot of services

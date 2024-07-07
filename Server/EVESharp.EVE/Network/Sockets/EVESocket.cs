@@ -91,6 +91,7 @@ public class EVESocket : IEVESocket
 
     protected void OnDataReceived (PyDataType data)
     {
+        Console.WriteLine ($"------ received ------ {data}");
         if (this.DataReceived is not null)
             this.DataReceived (data);
     }
@@ -181,6 +182,7 @@ public class EVESocket : IEVESocket
 
     public virtual void Send (PyDataType data)
     {
+        Console.WriteLine ($"------ send ------ {data}");
         // convert the data to bytes
         byte [] encodedPacket = Marshal.ToByteArray (data);
         // compress the packet if required
