@@ -1,4 +1,5 @@
 ﻿using EVESharp.Common.Compression;
+using EVESharp.EVE.Network.Sockets;
 using EVESharp.Types;
 using EVESharp.Types.Serialization;
 
@@ -6,15 +7,17 @@ namespace EVESharp.StandaloneServer.Messaging
 {
     internal interface IMessageTranslator
     {
-        PyDataType Decode (byte [] data);
+        PyDataType Decode (byte [] buffer, int bytesCount);
         byte [] Encode (PyDataType data);
     }
 
-    internal class MessageTranslator : IMessageTranslator
+    internal class MessageTranslator (StreamPacketizer streamPacketizer) : IMessageTranslator
     {
-        public PyDataType Decode (byte [] data)
+        public PyDataType Decode (byte [] buffer, int bytesCount)
         {
-            return Unmarshal.ReadFromByteArray (data);
+            streamPacketizer.QueuePackets (buffer, bytesCount);
+            streamPacketizer.ProcessPackets ();
+            return Unmarshal.ReadFromByteArray (streamPacketizer.PopItem ());
         }
 
         public byte [] Encode (PyDataType data)

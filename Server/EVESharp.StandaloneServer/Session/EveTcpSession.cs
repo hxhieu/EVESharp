@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using NetCoreServer;
 using System.Net.Sockets;
-using System.Text;
 
 namespace EVESharp.StandaloneServer.Session
 {
@@ -15,7 +14,8 @@ namespace EVESharp.StandaloneServer.Session
     internal class EveTcpSession (
         TcpServer server,
         ILogger<EveTcpSession> logger,
-        ICommonMessaging commonMessaging
+        ICommonMessaging commonMessaging,
+        IMessageReceivedDelegator messageReceivedDelegator
     ) : TcpSession (server), IEveTcpSession
     {
         protected override void OnConnected ()
@@ -39,8 +39,7 @@ namespace EVESharp.StandaloneServer.Session
 
         protected override void OnReceived (byte [] buffer, long offset, long size)
         {
-            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-            logger.LogDebug ("TCP session {Id} -> incoming: {Message}", Id, message);
+            messageReceivedDelegator.Received (buffer, (int)size).Wait();
         }
     }
 }

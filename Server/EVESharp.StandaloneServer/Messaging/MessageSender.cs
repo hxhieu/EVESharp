@@ -22,7 +22,7 @@ namespace EVESharp.StandaloneServer.Messaging
             {
                 var buffer = messageTranslator.Encode (data);
                 await send (buffer);
-                logger.LogDebug ("SENT -> {Data}", data);
+                logger.LogDebug ("SENT {Data}", data.ToString());
             }
             catch (Exception ex)
             {

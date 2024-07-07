@@ -1,4 +1,5 @@
-﻿using EVESharp.StandaloneServer.Messaging;
+﻿using EVESharp.EVE.Network.Sockets;
+using EVESharp.StandaloneServer.Messaging;
 using EVESharp.StandaloneServer.Network;
 using EVESharp.StandaloneServer.Server;
 using EVESharp.StandaloneServer.Session;
@@ -37,12 +38,16 @@ namespace EVESharp.StandaloneServer
                 return new EveTcpSession (
                     scope.ServiceProvider.GetRequiredService<EveTcpServer> (),
                     scope.ServiceProvider.GetRequiredService<ILogger<EveTcpSession>> (),
-                    scope.ServiceProvider.GetRequiredService<ICommonMessaging> ()
+                    scope.ServiceProvider.GetRequiredService<ICommonMessaging> (),
+                    scope.ServiceProvider.GetRequiredService<IMessageReceivedDelegator> ()
                 );
             });
 
+            builder.Services.AddTransient<StreamPacketizer> ();
+
             builder.Services.AddSingleton<IMessageTranslator, MessageTranslator> ();
             builder.Services.AddSingleton<ICommonMessaging, CommonMessaging> ();
+            builder.Services.AddSingleton<IMessageReceivedDelegator, MessageReceivedDelegator> ();
 
             // Default EVESharp single mode services
             builder.Services.RegisterEVESharpSingleNodeMachoNet (seriLogger);
