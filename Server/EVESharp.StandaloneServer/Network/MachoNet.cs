@@ -17,7 +17,10 @@ namespace EVESharp.StandaloneServer.Network
     /// <param name="loginProcessor"></param>
     /// <param name="configuration"></param>
     /// <param name="logger"></param>
-    internal class MachoNet (IDatabase database, ITransportManager transportManager, IQueueProcessor<LoginQueueEntry> loginProcessor, General configuration, ILogger logger)
-        : EVESharpMachoNet (database, transportManager, loginProcessor, configuration, logger), IEveServer
-    { }
+    internal class MachoNet (
+        // All these required by the original implementation, do not change them
+        IDatabase database, ITransportManager transportManager, IQueueProcessor<LoginQueueEntry> loginProcessor, General configuration, ILogger logger
+        // Add extra services below
+    ) : EVESharpMachoNet (database, transportManager, loginProcessor, configuration, logger), IEveServer
+    {}
 }

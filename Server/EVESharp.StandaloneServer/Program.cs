@@ -1,4 +1,5 @@
-﻿using EVESharp.StandaloneServer.Network;
+﻿using EVESharp.StandaloneServer.Messaging;
+using EVESharp.StandaloneServer.Network;
 using EVESharp.StandaloneServer.Server;
 using EVESharp.StandaloneServer.Session;
 using Microsoft.Extensions.Configuration;
@@ -23,20 +24,28 @@ namespace EVESharp.StandaloneServer
             // Configuration options
             builder.Services.Configure<EveServerOptions> (configuration.GetSection (EveServerOptions.ConfigSection));
 
+            // Logging
+            var seriLogger = new LoggerConfiguration ().ReadFrom.Configuration (builder.Configuration).CreateLogger ();
+            builder.Services.AddSerilog (seriLogger);
+
             #region Dependencies
 
             // Session is an important thing and it would require a lot of services
             builder.Services.AddTransient (services =>
             {
+                using var scope = services.CreateScope();
                 return new EveTcpSession (
-                    services.GetRequiredService<EveTcpServer> (),
-                    services.GetRequiredService<ILogger<EveTcpSession>> ()
+                    scope.ServiceProvider.GetRequiredService<EveTcpServer> (),
+                    scope.ServiceProvider.GetRequiredService<ILogger<EveTcpSession>> (),
+                    scope.ServiceProvider.GetRequiredService<ICommonMessaging> ()
                 );
             });
 
+            builder.Services.AddSingleton<IMessageTranslator, MessageTranslator> ();
+            builder.Services.AddSingleton<ICommonMessaging, CommonMessaging> ();
+
             // Default EVESharp single mode services
-            //builder.Services.RegisterEVESharpSingleNodeMachoNet ();
-            //builder.Services.AddSingleton<MachoNet> ();
+            builder.Services.RegisterEVESharpSingleNodeMachoNet (seriLogger);
 
             // Something else
             builder.Services.AddSingleton<MachoNetNext> ();
@@ -58,11 +67,6 @@ namespace EVESharp.StandaloneServer
                     builder.Services.AddHostedService<EveServerWorker<EveTcpServer>> ();
                     break;
             }
-
-            // Logging
-            var seriLogger = new LoggerConfiguration ().ReadFrom.Configuration (builder.Configuration).CreateLogger ();
-            builder.Services.AddSingleton (_ => seriLogger); // For legacy direct access Serilog ILogger
-            builder.Services.AddSerilog (seriLogger); // Microsoft logging framework backing with Serilog
 
             var host = builder.Build ();
 

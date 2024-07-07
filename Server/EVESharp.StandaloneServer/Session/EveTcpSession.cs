@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using EVESharp.StandaloneServer.Messaging;
+using Microsoft.Extensions.Logging;
 using NetCoreServer;
 using System.Net.Sockets;
 using System.Text;
@@ -13,15 +14,18 @@ namespace EVESharp.StandaloneServer.Session
     /// <param name="server"></param>
     internal class EveTcpSession (
         TcpServer server,
-        ILogger<EveTcpSession> logger
+        ILogger<EveTcpSession> logger,
+        ICommonMessaging commonMessaging
     ) : TcpSession (server), IEveTcpSession
     {
         protected override void OnConnected ()
         {
             logger.LogInformation ("TCP session {Id} -> connected!", Id);
-            // TODO: Everything starts from here
-            Thread.Sleep (2000);
-            Disconnect ();
+            commonMessaging.SendHandShakeAsync ((buffer) =>
+            {
+                SendAsync (buffer);
+                return Task.CompletedTask;
+            });
         }
 
         protected override void OnDisconnected ()
