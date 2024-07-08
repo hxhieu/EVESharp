@@ -7,17 +7,20 @@ namespace EVESharp.StandaloneServer.Messaging
 {
     internal interface IMessageDecoder
     {
-        PyDataType Decode (byte [] buffer, int bytesCount);
+        IEnumerable<PyDataType> Decode (byte [] buffer, int bytesCount);
         byte [] Encode (PyDataType data);
     }
 
     internal class MessageDecoder (StreamPacketizer _streamPacketizer) : IMessageDecoder
     {
-        public PyDataType Decode (byte [] buffer, int bytesCount)
+        public IEnumerable<PyDataType> Decode (byte [] buffer, int bytesCount)
         {
             _streamPacketizer.QueuePackets (buffer, bytesCount);
             _streamPacketizer.ProcessPackets ();
-            return Unmarshal.ReadFromByteArray (_streamPacketizer.PopItem ());
+            while (_streamPacketizer.PacketCount> 0)
+            {
+                yield return Unmarshal.ReadFromByteArray (_streamPacketizer.PopItem ());
+            }
         }
 
         public byte [] Encode (PyDataType data)

@@ -5,20 +5,19 @@ using Microsoft.Extensions.Logging;
 
 namespace EVESharp.StandaloneServer.Messaging.ClientCommands
 {
-    internal sealed class VkClientCommandHandler (
-        ILogger<VkClientCommandHandler> _logger
-    ) : IClientCommandHandler
+    internal class PlaceboClientCommandHandler(ILogger<PlaceboClientCommandHandler> _logger) : IClientCommandHandler
     {
         public PyDataType? Handle (ClientCommand command, IEveTcpSession owner)
         {
             _logger.LogDebug (
                 "HANDLING {Type} {Command}",
-                nameof (ClientCommand),
+                nameof (PlaceboClientCommandHandler),
                 command.Command
             );
 
-            // TODO: What to handle on 'VK' command
-            var sentData =  CommonPacket.None;
+            // Will response with the number of current login sessions
+            var sentData =  new PyString("OK CC");
+
             owner.SendData (sentData);
 
             return sentData;

@@ -13,8 +13,8 @@ namespace EVESharp.StandaloneServer.Server
 
     internal sealed class EveTcpSessionDelegator (
         ILogger<EveTcpSessionDelegator> _logger,
-        IMessageDecoder _messageTranslator,
-        IClientCommandManager _clientCommand
+        IClientCommandManager _clientCommand,
+        ICoreMessagingManager _coreMessaging
     ) : IEveTcpSessionDelegator
     {
         private static void TryHandleMessage (Action action)
@@ -26,7 +26,8 @@ namespace EVESharp.StandaloneServer.Server
             // Throw on known exceptions
             catch (Exception e) when (
                 e is SessionMessageHandlingError ||
-                e is NotImplementedException
+                e is NotImplementedException ||
+                e is ArgumentNullException
             )
             { throw; }
             catch { /* Intentionally ignore this so it can flow to the next one */  }
@@ -47,7 +48,7 @@ namespace EVESharp.StandaloneServer.Server
             {
                 LowLevelVersionExchange handshake = data;
                 delegateType = nameof (LowLevelVersionExchange);
-                //owner.SendData (CommonPacket.None);
+                _coreMessaging.LowLevelExchangeHandler.Handle (handshake, owner);
             });
 
             if (delegateType == null)
@@ -57,8 +58,7 @@ namespace EVESharp.StandaloneServer.Server
                 {
                     AuthenticationReq authReq = data;
                     delegateType = nameof (AuthenticationReq);
-                    _logger.LogInformation("{Type} {Data}", delegateType, data.ToString());
-                    throw new NotImplementedException (nameof(AuthenticationReq));
+                    throw new NotImplementedException ($"{nameof (AuthenticationReq)} not yet implemented/handled");
                 });
             }
 

@@ -1,5 +1,4 @@
 ﻿using EVESharp.EVE.Packets;
-using EVESharp.EVE.Types.Network;
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.Types;
 using Microsoft.Extensions.Logging;
@@ -32,7 +31,7 @@ namespace EVESharp.StandaloneServer.Server
         public void SendData (PyDataType data)
         {
             var buffer = _messageDecoder.Encode ( data );
-            Send (buffer);
+            SendAsync (buffer);
             _logger.LogDebug ("SENT {Data}", data.ToString ());
         }
 
@@ -47,7 +46,7 @@ namespace EVESharp.StandaloneServer.Server
             catch (Exception ex)
             {
                 _logger.LogError (ex, "{Error}", ex.Message);
-                SendData (new PyException ("GPSTransportClosed", ex.Message, null, null));
+                SendData (new GPSTransportClosed (ex.Message));
                 Dispose ();
             }
         }
@@ -55,6 +54,7 @@ namespace EVESharp.StandaloneServer.Server
         protected override void OnDisconnected ()
         {
             _logger.LogInformation ("TCP session {Id} -> disconnected!", Id);
+            Dispose ();
         }
         protected override void OnError (SocketError error)
         {
@@ -65,15 +65,33 @@ namespace EVESharp.StandaloneServer.Server
         {
             try
             {
-                var data = _messageDecoder.Decode(buffer, (int)size);
-                _logger.LogDebug ("RECEIVED {Data}", data.ToString ());
+                var packets = _messageDecoder.Decode(buffer, (int)size);
+                var totalPacket = packets.Count();
 
-                _sessionDelegator.Received (data, this);
+                _logger.LogDebug (
+                    "--------------------------{NewLine}RECEIVED PACKET(S) {Total}",
+                    Environment.NewLine,
+                    totalPacket
+                );
+
+                var currentPacket = 0;
+                foreach (var packet in packets)
+                {
+                    currentPacket++;
+                    _logger.LogDebug (
+                        "{Current} of {Total} {Data}",
+                        currentPacket,
+                        totalPacket,
+                        packet.ToString ()
+                    );
+                    _sessionDelegator.Received (packet, this);
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError (ex, "{Error}", ex.Message);
-                SendData (new PyException ("GPSTransportClosed", ex.Message, null, null));
+                // TODO: Will this disconnect the client? If so we need to handle UserError as well.
+                SendData (new GPSTransportClosed (ex.Message));
                 Dispose ();
             }
         }

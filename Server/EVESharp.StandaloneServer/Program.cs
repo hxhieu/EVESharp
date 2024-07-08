@@ -44,8 +44,9 @@ namespace EVESharp.StandaloneServer
 
             builder.Services.AddTransient<StreamPacketizer> ();
 
-            // Client command registrations
-            builder.Services.AddClientCommandRequests ();
+            // Handle client messaging
+            builder.Services.AddCoreMessaging ();
+            builder.Services.AddClientCommandHandling ();
 
             builder.Services.AddSingleton<IMessageDecoder, MessageDecoder> ();
             //builder.Services.AddSingleton<IMessageSender, MessageSender> ();

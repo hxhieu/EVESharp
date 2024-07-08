@@ -5,7 +5,7 @@ namespace EVESharp.StandaloneServer.Messaging
 {
     internal static class ClientCommandManagerRegistry
     {
-        public static IServiceCollection AddClientCommandRequests (this IServiceCollection services)
+        public static IServiceCollection AddClientCommandHandling (this IServiceCollection services)
         {
             // The register keys must much the command from client
             services
@@ -13,6 +13,8 @@ namespace EVESharp.StandaloneServer.Messaging
                     ClientCommandManager.GetRegistryKey ("VK"))
                 .AddKeyedTransient<IClientCommandHandler, QcClientCommandHandler> (
                     ClientCommandManager.GetRegistryKey ("QC"))
+                .AddKeyedTransient<IClientCommandHandler, PlaceboClientCommandHandler> (
+                    ClientCommandManager.GetRegistryKey ("placebo"))
                 ;
 
             services.AddSingleton<IClientCommandManager, ClientCommandManager> ();
