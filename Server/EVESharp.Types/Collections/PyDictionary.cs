@@ -10,7 +10,7 @@ namespace EVESharp.Types.Collections;
 /// </summary>
 /// <typeparam name="TKey"></typeparam>
 /// <typeparam name="TValue"></typeparam>
-public class PyDictionary <TKey, TValue> : PyDictionary, IPyDictionaryEnumerable <TKey, TValue> where TKey : PyDataType where TValue : PyDataType
+public class PyDictionary<TKey, TValue> : PyDictionary, IPyDictionaryEnumerable<TKey, TValue> where TKey : PyDataType where TValue : PyDataType
 {
     public TValue this [TKey index]
     {
@@ -20,15 +20,15 @@ public class PyDictionary <TKey, TValue> : PyDictionary, IPyDictionaryEnumerable
 
     public PyDictionary () { }
 
-    public PyDictionary (Dictionary <PyDataType, PyDataType> seed) : base (seed) { }
+    public PyDictionary (Dictionary<PyDataType, PyDataType> seed) : base (seed) { }
 
-    public new IPyDictionaryEnumerator <TKey, TValue> GetEnumerator ()
+    public new IPyDictionaryEnumerator<TKey, TValue> GetEnumerator ()
     {
-        return new PyDictionaryEnumerator <TKey, TValue> (this.mDictionary.GetEnumerator ());
+        return new PyDictionaryEnumerator<TKey, TValue> (this.mDictionary.GetEnumerator ());
     }
 }
 
-public class PyDictionary : PyDataType, IPyDictionaryEnumerable <PyDataType, PyDataType>
+public class PyDictionary : PyDataType, IPyDictionaryEnumerable<PyDataType, PyDataType>
 {
     protected readonly Dictionary <PyDataType, PyDataType> mDictionary;
 
@@ -39,26 +39,26 @@ public class PyDictionary : PyDataType, IPyDictionaryEnumerable <PyDataType, PyD
     }
 
     public int Length => this.mDictionary.Count;
-    public int Count  => this.Length;
+    public int Count => this.Length;
 
     public PyDictionary ()
     {
-        this.mDictionary = new Dictionary <PyDataType, PyDataType> ();
+        this.mDictionary = new Dictionary<PyDataType, PyDataType> ();
     }
 
-    public PyDictionary (Dictionary <PyDataType, PyDataType> seed)
+    public PyDictionary (Dictionary<PyDataType, PyDataType> seed)
     {
         this.mDictionary = seed;
     }
 
-    public IPyDictionaryEnumerator <PyDataType, PyDataType> GetEnumerator ()
+    public IPyDictionaryEnumerator<PyDataType, PyDataType> GetEnumerator ()
     {
-        return new PyDictionaryEnumerator <PyDataType, PyDataType> (this.mDictionary.GetEnumerator ());
+        return new PyDictionaryEnumerator<PyDataType, PyDataType> (this.mDictionary.GetEnumerator ());
     }
 
     IEnumerator IEnumerable.GetEnumerator ()
     {
-        return new PyDictionaryEnumerator <PyDataType, PyDataType> (this.mDictionary.GetEnumerator ());
+        return new PyDictionaryEnumerator<PyDataType, PyDataType> (this.mDictionary.GetEnumerator ());
     }
 
     public override int GetHashCode ()
@@ -73,10 +73,10 @@ public class PyDictionary : PyDataType, IPyDictionaryEnumerable <PyDataType, PyD
         {
             mult += 52368 + length + length; // shift the multiplier
             int elementHash = key?.GetHashCode () ?? PyNone.HASH_VALUE * mult;
-            mul2        += 58212 + length + length; // shift the multiplier
+            mul2 += 58212 + length + length; // shift the multiplier
             elementHash ^= (value?.GetHashCode () ?? PyNone.HASH_VALUE * mul2) << 3;
-            currentHash =  (currentHash ^ elementHash) * mult;
-            mult        += 82520 + length + length; // shift the multiplier
+            currentHash = (currentHash ^ elementHash) * mult;
+            mult += 82520 + length + length; // shift the multiplier
         }
 
         return currentHash + 97531;
@@ -87,7 +87,7 @@ public class PyDictionary : PyDataType, IPyDictionaryEnumerable <PyDataType, PyD
         return this.mDictionary.TryGetValue (key, out value);
     }
 
-    public bool TryGetValue <T> (PyDataType key, out T value) where T : PyDataType
+    public bool TryGetValue<T> (PyDataType key, out T value) where T : PyDataType
     {
         if (this.TryGetValue (key, out PyDataType tmp))
         {
@@ -101,7 +101,7 @@ public class PyDictionary : PyDataType, IPyDictionaryEnumerable <PyDataType, PyD
         return false;
     }
 
-    public void SafeGetValue <T> (PyDataType key, out T value) where T : PyDataType
+    public void SafeGetValue<T> (PyDataType key, out T value) where T : PyDataType
     {
         if (this.TryGetValue (key, out value) == false)
             throw new KeyNotFoundException ();
@@ -132,9 +132,9 @@ public class PyDictionary : PyDataType, IPyDictionaryEnumerable <PyDataType, PyD
         return this.mDictionary.ContainsValue (value);
     }
 
-    public PyDictionary <T1, T2> GetEnumerable <T1, T2> () where T1 : PyDataType where T2 : PyDataType
+    public PyDictionary<T1, T2> GetEnumerable<T1, T2> () where T1 : PyDataType where T2 : PyDataType
     {
-        return new PyDictionary <T1, T2> (this.mDictionary);
+        return new PyDictionary<T1, T2> (this.mDictionary);
     }
 
     public override string ToString ()
@@ -142,7 +142,12 @@ public class PyDictionary : PyDataType, IPyDictionaryEnumerable <PyDataType, PyD
         var type = GetType ();
         var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: [{Environment.NewLine}");
 
-        // TODO:
+        foreach (var item in mDictionary)
+        {
+            builder.Append ('\t');
+            builder.Append (item.Key.ToString ()).Append (": ");
+            builder.Append (item.Value?.ToString ()).Append (Environment.NewLine);
+        }
 
         builder.Append (']');
         return builder.ToString ();

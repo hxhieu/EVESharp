@@ -29,9 +29,12 @@ public class PyObject : PyDataType
         var type = GetType ();
         var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: {{{Environment.NewLine}");
 
-        // TODO
+        builder.Append('\t').Append("IsType2: ").Append(IsType2).Append(Environment.NewLine);
+        builder.Append ('\t').Append ("Header: ").Append (Header.ToString()).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("List: ").Append (List.ToString ()).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("Dictionary: ").Append (Dictionary.ToString ()).Append (Environment.NewLine);
 
-        builder.Append ("}");
+        builder.Append ('}');
         return builder.ToString ();
     }
 }

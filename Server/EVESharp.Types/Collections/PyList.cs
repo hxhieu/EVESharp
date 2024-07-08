@@ -149,7 +149,11 @@ public class PyList : PyDataType, IPyEnumerable <PyDataType>
         var type = GetType ();
         var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: [{Environment.NewLine}");
 
-        // TODO:
+        foreach (var item in mList)
+        {
+            builder.Append ('\t');
+            builder.Append (item.ToString ()).Append (Environment.NewLine);
+        }
 
         builder.Append (']');
         return builder.ToString ();
