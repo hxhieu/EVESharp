@@ -12,15 +12,15 @@ namespace EVESharp.StandaloneServer.Network
     /// <summary>
     /// This does nothing extra from the base MachoNet but having the distinguish interface for DI
     /// </summary>
-    /// <param name="database"></param>
-    /// <param name="transportManager"></param>
-    /// <param name="loginProcessor"></param>
-    /// <param name="configuration"></param>
-    /// <param name="logger"></param>
+    /// <param name="_database"></param>
+    /// <param name="_transportManager"></param>
+    /// <param name="_loginProcessor"></param>
+    /// <param name="_configuration"></param>
+    /// <param name="_logger"></param>
     internal class MachoNet (
         // All these required by the original implementation, do not change them
-        IDatabase database, ITransportManager transportManager, IQueueProcessor<LoginQueueEntry> loginProcessor, General configuration, ILogger logger
+        IDatabase _database, ITransportManager _transportManager, IQueueProcessor<LoginQueueEntry> _loginProcessor, General _configuration, ILogger _logger
         // Add extra services below
-    ) : EVESharpMachoNet (database, transportManager, loginProcessor, configuration, logger), IEveServer
+    ) : EVESharpMachoNet (_database, _transportManager, _loginProcessor, _configuration, _logger), IEveServer
     {}
 }

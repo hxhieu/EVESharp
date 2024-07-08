@@ -1,6 +1,7 @@
 ﻿using EVESharp.EVE.Packets;
+using EVESharp.StandaloneServer.Messaging.ClientCommands;
+using EVESharp.StandaloneServer.Server;
 using EVESharp.Types;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -8,27 +9,23 @@ namespace EVESharp.StandaloneServer.Messaging
 {
     internal interface IClientCommandManager
     {
-        Task<PyDataType?> HandleCommand (ClientCommand command, Func<byte [], Task> sender);
+        PyDataType? HandleCommand (ClientCommand command, IEveTcpSession owner);
     }
 
     internal sealed class ClientCommandManager (
-        ILogger<ClientCommandManager> logger,
-        IServiceProvider serviceProvider,
-        IMediator mediator
+        ILogger<ClientCommandManager> _logger,
+        IServiceProvider _serviceProvider
     ) : IClientCommandManager
     {
         public static string GetRegistryKey (string command) => $"{nameof (ClientCommand)}::{command}";
 
-        public async Task<PyDataType?> HandleCommand (ClientCommand command, Func<byte [], Task> sender)
+        public PyDataType? HandleCommand (ClientCommand command, IEveTcpSession owner)
         {
-            var request = serviceProvider.GetKeyedService<IClientCommandRequest> (GetRegistryKey(command.Command))
-                ?? throw new ReceivedMessageHandlingException (
+            var request = _serviceProvider.GetKeyedService<IClientCommandHandler> (GetRegistryKey(command.Command))
+                ?? throw new NotImplementedException (
                     $"{nameof(ClientCommand)} '{command.Command}' is not yet implemented"
                 );
-            request.Data = command;
-            request.SendAsync = sender;
-            var response = await mediator.Send (request);
-            return response as PyDataType;
+            return request.Handle (command, owner);
         }
     }
 }

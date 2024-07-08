@@ -8,11 +8,14 @@ namespace EVESharp.StandaloneServer.Messaging
         public static IServiceCollection AddClientCommandRequests (this IServiceCollection services)
         {
             services
-                .AddKeyedTransient<IClientCommandRequest, VkClientCmdRequest> (
+                .AddKeyedTransient<IClientCommandHandler, VkClientCommandHandler> (
                     ClientCommandManager.GetRegistryKey ("VK"))
-                .AddKeyedTransient<IClientCommandRequest, VkClientCmdRequest> (
+                .AddKeyedTransient<IClientCommandHandler, VkClientCommandHandler> (
                     ClientCommandManager.GetRegistryKey ("VK1"))
                 ;
+
+            services.AddSingleton<IClientCommandManager, ClientCommandManager> ();
+
             return services;
         }
     }

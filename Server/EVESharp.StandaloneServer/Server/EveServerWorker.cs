@@ -11,16 +11,16 @@ namespace EVESharp.StandaloneServer.Server
     /// <summary>
     /// Background service to host the server
     /// </summary>
-    /// <param name="logger"></param>
+    /// <param name="_logger"></param>
     /// <param name="eveServer">Singleton instance constructed via the service collection</param>
     internal sealed class EveServerWorker<TServer> (
-        ILogger<EveServerWorker<TServer>> logger,
-        TServer server
+        ILogger<EveServerWorker<TServer>> _logger,
+        TServer _server
     ) : IHostedService, IHostedLifecycleService where TServer: IEveServer
     {
         public Task StartAsync (CancellationToken cancellationToken)
         {
-            server.Initialize ();
+            _server.Initialize ();
             return Task.CompletedTask;
         }
 

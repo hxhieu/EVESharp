@@ -2,7 +2,6 @@
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.StandaloneServer.Network;
 using EVESharp.StandaloneServer.Server;
-using EVESharp.StandaloneServer.Session;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,9 +28,6 @@ namespace EVESharp.StandaloneServer
             var seriLogger = new LoggerConfiguration ().ReadFrom.Configuration (builder.Configuration).CreateLogger ();
             builder.Services.AddSerilog (seriLogger);
 
-            // Queries and handlers
-            builder.Services.AddMediatR (cfg => cfg.RegisterServicesFromAssembly (typeof (Program).Assembly));
-
             #region Dependencies
 
             // Session is an important thing and it would require a lot of services
@@ -41,8 +37,8 @@ namespace EVESharp.StandaloneServer
                 return new EveTcpSession (
                     scope.ServiceProvider.GetRequiredService<EveTcpServer> (),
                     scope.ServiceProvider.GetRequiredService<ILogger<EveTcpSession>> (),
-                    scope.ServiceProvider.GetRequiredService<ICommonMessaging> (),
-                    scope.ServiceProvider.GetRequiredService<IMessageReceivedDelegator> ()
+                    scope.ServiceProvider.GetRequiredService<IMessageDecoder> (),
+                    scope.ServiceProvider.GetRequiredService<IEveTcpSessionDelegator> ()
                 );
             });
 
@@ -50,12 +46,10 @@ namespace EVESharp.StandaloneServer
 
             // Client command registrations
             builder.Services.AddClientCommandRequests ();
-            builder.Services.AddSingleton<IClientCommandManager, ClientCommandManager> ();
 
             builder.Services.AddSingleton<IMessageDecoder, MessageDecoder> ();
-            builder.Services.AddSingleton<IMessageSender, MessageSender> ();
-            builder.Services.AddSingleton<ICommonMessaging, CommonMessaging> ();
-            builder.Services.AddSingleton<IMessageReceivedDelegator, ReceivedMessageDelegator> ();
+            //builder.Services.AddSingleton<IMessageSender, MessageSender> ();
+            builder.Services.AddSingleton<IEveTcpSessionDelegator, EveTcpSessionDelegator> ();
 
             // Default EVESharp single mode services
             builder.Services.AddEVESharpSingleNodeMachoNet (seriLogger);

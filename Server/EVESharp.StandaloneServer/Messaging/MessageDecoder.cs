@@ -11,13 +11,13 @@ namespace EVESharp.StandaloneServer.Messaging
         byte [] Encode (PyDataType data);
     }
 
-    internal class MessageDecoder (StreamPacketizer streamPacketizer) : IMessageDecoder
+    internal class MessageDecoder (StreamPacketizer _streamPacketizer) : IMessageDecoder
     {
         public PyDataType Decode (byte [] buffer, int bytesCount)
         {
-            streamPacketizer.QueuePackets (buffer, bytesCount);
-            streamPacketizer.ProcessPackets ();
-            return Unmarshal.ReadFromByteArray (streamPacketizer.PopItem ());
+            _streamPacketizer.QueuePackets (buffer, bytesCount);
+            _streamPacketizer.ProcessPackets ();
+            return Unmarshal.ReadFromByteArray (_streamPacketizer.PopItem ());
         }
 
         public byte [] Encode (PyDataType data)

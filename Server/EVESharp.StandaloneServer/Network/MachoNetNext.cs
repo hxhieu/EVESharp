@@ -15,8 +15,8 @@ using ISerilogger = Serilog.ILogger;
 namespace EVESharp.StandaloneServer.Network
 {
     internal class MachoNetNext (
-        ILogger<MachoNetNext> logger,
-        IOptions<EveServerOptions> options
+        ILogger<MachoNetNext> _logger,
+        IOptions<EveServerOptions> _options
     ) : IEveServer
     {
         public long NodeID { get => throw new NotImplementedException (); set => throw new NotImplementedException (); }
@@ -24,7 +24,7 @@ namespace EVESharp.StandaloneServer.Network
 
         public RunMode Mode => RunMode.Single;
 
-        public ushort Port => options.Value.ListenPort;
+        public ushort Port => _options.Value.ListenPort;
 
         public ISerilogger Log => Serilog.Log.Logger;
 
@@ -44,7 +44,7 @@ namespace EVESharp.StandaloneServer.Network
 
         public void Initialize ()
         {
-            logger.LogInformation ("{Service} [{Mode}] is listening at :{Port}", nameof (MachoNetNext), Mode, Port);
+            _logger.LogInformation ("{Service} [{Mode}] is listening at :{Port}", nameof (MachoNetNext), Mode, Port);
         }
 
         public void QueueInputPacket (IMachoTransport origin, PyPacket packet)
