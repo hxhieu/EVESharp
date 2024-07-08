@@ -58,7 +58,7 @@ namespace EVESharp.StandaloneServer.Server
                 {
                     AuthenticationReq authReq = data;
                     delegateType = nameof (AuthenticationReq);
-                    throw new NotImplementedException ($"{nameof (AuthenticationReq)} not yet implemented/handled");
+                    _coreMessaging.LoginHandler.Handle (authReq, owner);
                 });
             }
 

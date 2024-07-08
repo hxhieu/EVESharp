@@ -6,11 +6,15 @@ namespace EVESharp.StandaloneServer.Messaging
     internal interface ICoreMessagingManager
     {
         ILowLevelVersionExchangeHandler LowLevelExchangeHandler { get; }
+        ILoginHandler LoginHandler { get; }
     }
 
     internal class CoreMessagingManager (IServiceProvider _serviceProvider) : ICoreMessagingManager
     {
         public ILowLevelVersionExchangeHandler LowLevelExchangeHandler => 
             _serviceProvider.GetRequiredService<ILowLevelVersionExchangeHandler> ();
+
+        public ILoginHandler LoginHandler =>
+            _serviceProvider.GetRequiredService<ILoginHandler> ();
     }
 }

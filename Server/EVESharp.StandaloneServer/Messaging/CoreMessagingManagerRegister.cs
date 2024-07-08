@@ -9,6 +9,7 @@ namespace EVESharp.StandaloneServer.Messaging
         {
             services
                 .AddTransient<ILowLevelVersionExchangeHandler, LowLevelVersionExchangeHandler> ()
+                .AddTransient<ILoginHandler, LoginHandler> ()
             ;
 
             services.AddSingleton<ICoreMessagingManager, CoreMessagingManager> ();
