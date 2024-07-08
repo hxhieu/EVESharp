@@ -70,6 +70,7 @@ public class EVESocket : IEVESocket
 
     private void ProcessInputData ()
     {
+        Console.WriteLine ($"------ ProcessInputData packet count {this.Packetizer.PacketCount} ------");
         // no data received callback means the data cannot be processed yet
         if (this.DataReceived is null)
             return;

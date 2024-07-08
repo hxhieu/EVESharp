@@ -1,6 +1,6 @@
-using System.IO;
 using EVESharp.Types;
 using EVESharp.Types.Collections;
+using System.IO;
 
 namespace EVESharp.EVE.Packets;
 
@@ -17,16 +17,17 @@ public class AuthenticationReq
     public string user_name       = "";
     public string user_languageid = "";
 
-    public static implicit operator AuthenticationReq(PyDataType data)
+    public static implicit operator AuthenticationReq (PyDataType data)
     {
         PyTuple tuple = data as PyTuple;
 
         if (tuple.Count != 2)
-            throw new InvalidDataException("Expected a tuple of two elements");
+            throw new InvalidDataException ("Expected a tuple of two elements");
 
-        PyDictionary info = tuple[1] as PyDictionary;
-
-        AuthenticationReq result = new AuthenticationReq
+        PyDictionary info = tuple[1] as PyDictionary 
+            ?? throw new InvalidDataException ($"Unable to cast this {nameof (PyDataType)} to {nameof (AuthenticationReq)}");
+        
+        AuthenticationReq result = new ()
         {
             boot_version     = info["boot_version"] as PyDecimal,
             boot_region      = info["boot_region"] as PyString,
@@ -37,18 +38,19 @@ public class AuthenticationReq
             user_name        = info["user_name"] as PyString,
             user_languageid  = info["user_languageid"] as PyString
         };
-            
-        if (info["user_password_hash"] is null)
+
+        if (info ["user_password_hash"] is null)
             result.user_password_hash = null;
         else
-            result.user_password_hash = info["user_password_hash"] as PyString;
+            result.user_password_hash = info ["user_password_hash"] as PyString;
 
-        if (info["user_password"] is null)
+        if (info ["user_password"] is null)
             result.user_password = null;
-        else if (info["user_password"] is PyObject)
-            result.user_password = ((info["user_password"] as PyObject).Header[0] as PyTuple)[1] as PyString;
+        else if (info ["user_password"] is PyObject)
+            result.user_password = ((info ["user_password"] as PyObject).Header [0] as PyTuple) [1] as PyString;
 
         return result;
+
     }
 
     public static implicit operator PyDataType (AuthenticationReq req)
@@ -56,7 +58,7 @@ public class AuthenticationReq
         return new PyTuple (2)
         {
             [0] = null, // random bytes, i guess for encryption?
-            [1] = new PyDictionary()
+            [1] = new PyDictionary ()
             {
                 ["boot_version"] = req.boot_version,
                 ["boot_region"] = req.boot_region,
@@ -69,12 +71,13 @@ public class AuthenticationReq
                 ["user_password_hash"] = req.user_password_hash,
                 ["user_password"] = req.user_password_hash is not null ? null :
                     new PyObject (
-                        false, 
+                        false,
                         new PyTuple (1)
                         {
                             [0] = new PyTuple (2)
                             {
-                                [0] = null, [1] = req.user_password
+                                [0] = null,
+                                [1] = req.user_password
                             }
                         }
                     )
