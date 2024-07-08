@@ -5,7 +5,10 @@ namespace EVESharp.StandaloneServer.Server
 {
     internal interface IEveServer
     {
+        T? GetInstance<T> () where T : class;
         void Initialize ();
+        int LoginCount { get; }
+        int UserCount { get; }
     }
 
     /// <summary>
@@ -16,7 +19,7 @@ namespace EVESharp.StandaloneServer.Server
     internal sealed class EveServerWorker<TServer> (
         ILogger<EveServerWorker<TServer>> _logger,
         TServer _server
-    ) : IHostedService, IHostedLifecycleService where TServer: IEveServer
+    ) : IHostedService, IHostedLifecycleService where TServer : IEveServer
     {
         public Task StartAsync (CancellationToken cancellationToken)
         {

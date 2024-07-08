@@ -20,7 +20,14 @@ namespace EVESharp.StandaloneServer.Network
     internal class MachoNet (
         // All these required by the original implementation, do not change them
         IDatabase _database, ITransportManager _transportManager, IQueueProcessor<LoginQueueEntry> _loginProcessor, General _configuration, ILogger _logger
-        // Add extra services below
+    // Add extra services below
     ) : EVESharpMachoNet (_database, _transportManager, _loginProcessor, _configuration, _logger), IEveServer
-    {}
+    {
+        public int LoginCount => LoginProcessor.Queue.Count;
+        public int UserCount => 0; // MachoNet session count?
+        public T? GetInstance<T> () where T : class
+        {
+            return this as T;
+        }
+    }
 }

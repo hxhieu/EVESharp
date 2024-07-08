@@ -19,6 +19,13 @@ namespace EVESharp.StandaloneServer.Network
         IOptions<EveServerOptions> _options
     ) : IEveServer
     {
+        public int LoginCount => LoginProcessor.Queue.Count;
+        public int UserCount => 0; // MachoNet session count?
+        public T? GetInstance<T> () where T : class
+        {
+            return this as T;
+        }
+
         public long NodeID { get => throw new NotImplementedException (); set => throw new NotImplementedException (); }
         public string Address { get => throw new NotImplementedException (); set => throw new NotImplementedException (); }
 
@@ -39,8 +46,6 @@ namespace EVESharp.StandaloneServer.Network
         public ISessionManager SessionManager { get => throw new NotImplementedException (); set => throw new NotImplementedException (); }
 
         public PyList<PyObjectData> LiveUpdates => throw new NotImplementedException ();
-
-        public MachoNetNext Server => this;
 
         public void Initialize ()
         {

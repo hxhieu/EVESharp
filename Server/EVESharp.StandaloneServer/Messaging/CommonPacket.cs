@@ -6,15 +6,15 @@ namespace EVESharp.StandaloneServer.Messaging
 {
     internal static class CommonPacket
     {
-        public static readonly PyDataType LowLevelExchange = new LowLevelVersionExchange
+        public static PyDataType LowLevelExchange (int activeSessions) => new LowLevelVersionExchange
         {
-            Codename     = Version.CODENAME,
-            Birthday     = Version.BIRTHDAY,
-            Build        = Version.BUILD,
+            Codename = Version.CODENAME,
+            Birthday = Version.BIRTHDAY,
+            Build = Version.BUILD,
             MachoVersion = Version.MACHO_VERSION,
-            Version      = Version.VERSION,
-            UserCount    = 0, // TODO: Get from server instance
-            Region       = Version.REGION
+            Version = Version.VERSION,
+            UserCount = activeSessions,
+            Region = Version.REGION
         };
         public static readonly PyDataType None = new PyNone();
         public static readonly PyDataType One = new PyInteger(1);

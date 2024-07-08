@@ -22,6 +22,10 @@ namespace EVESharp.StandaloneServer.Server
         private readonly ILogger<EveTcpServer> _logger = _logger;
         private readonly IServiceProvider _serviceProvider = _serviceProvider;
 
+        // Count not logged in sessions
+        public int LoginCount => Sessions.Count (x => (x.Value as IEveTcpSession)?.IsLoggedIn ?? false);
+        public int UserCount => Sessions.Count;
+
         public void Initialize ()
         {
             _logger.LogInformation ("{Service} is listening at :{Port}", nameof (EveTcpServer), Port);
@@ -41,6 +45,11 @@ namespace EVESharp.StandaloneServer.Server
         protected override void OnError (SocketError error)
         {
             _logger.LogError ("{Server} caught an error with code '{Error}'", nameof (EveTcpServer), error);
+        }
+
+        public T? GetInstance<T> () where T : class
+        {
+            return this as T;
         }
     }
 }
