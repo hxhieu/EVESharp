@@ -3,15 +3,15 @@ using EVESharp.StandaloneServer.Server;
 
 namespace EVESharp.StandaloneServer.Messaging.Core
 {
-    internal interface ILoginHandler
+    internal class LoginHandler
+        : ICoreHandler
     {
-        AuthenticationRsp? Handle (AuthenticationReq req, IEveTcpSession owner);
-    }
-
-    internal class LoginHandler : ILoginHandler
-    {
-        public AuthenticationRsp? Handle (AuthenticationReq req, IEveTcpSession owner)
+        public TResult? Handle<T, TResult> (T data, IEveTcpSession owner)
+            where T : class
+            where TResult : class
         {
+            var req = data as AuthenticationReq;
+
             throw new NotImplementedException ();
         }
     }

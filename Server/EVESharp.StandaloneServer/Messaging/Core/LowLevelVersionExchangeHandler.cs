@@ -1,18 +1,14 @@
-﻿using EVESharp.EVE.Packets;
-using EVESharp.StandaloneServer.Server;
-using EVESharp.Types;
+﻿using EVESharp.StandaloneServer.Server;
 using Microsoft.Extensions.Logging;
 
 namespace EVESharp.StandaloneServer.Messaging.Core
 {
-    internal interface ILowLevelVersionExchangeHandler
+    internal class LowLevelVersionExchangeHandler (ILogger<LowLevelVersionExchangeHandler> _logger)
+        : ICoreHandler
     {
-        PyDataType? Handle (LowLevelVersionExchange data, IEveTcpSession owner);
-    }
-
-    internal class LowLevelVersionExchangeHandler (ILogger<LowLevelVersionExchangeHandler> _logger) : ILowLevelVersionExchangeHandler
-    {
-        public PyDataType? Handle (LowLevelVersionExchange data, IEveTcpSession owner)
+        public TResult? Handle<T, TResult> (T data, IEveTcpSession owner)
+            where T : class
+            where TResult : class
         {
             // TODO: Nothing to do LowLevelVersionExchange?
             _logger.LogDebug (

@@ -8,8 +8,10 @@ namespace EVESharp.StandaloneServer.Messaging
         public static IServiceCollection AddCoreMessaging (this IServiceCollection services)
         {
             services
-                .AddTransient<ILowLevelVersionExchangeHandler, LowLevelVersionExchangeHandler> ()
-                .AddTransient<ILoginHandler, LoginHandler> ()
+                .AddKeyedTransient<ICoreHandler, LowLevelVersionExchangeHandler> (
+                    CoreMessagingManager.GetRegistryKey (CoreMessageType.LowLevelVersionExchange))
+                .AddKeyedTransient<ICoreHandler, LoginHandler> (
+                    CoreMessagingManager.GetRegistryKey (CoreMessageType.Login))
             ;
 
             services.AddSingleton<ICoreMessagingManager, CoreMessagingManager> ();

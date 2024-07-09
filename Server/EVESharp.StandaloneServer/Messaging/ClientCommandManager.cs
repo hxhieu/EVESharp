@@ -17,7 +17,7 @@ namespace EVESharp.StandaloneServer.Messaging
         IServiceProvider _serviceProvider
     ) : IClientCommandManager
     {
-        public static string GetRegistryKey (string command) => $"{nameof (ClientCommand)}::{command}";
+        public static string GetRegistryKey (string command) => $"{nameof (ClientCommandManager)}::{command}";
 
         public PyDataType? HandleCommand (ClientCommand command, IEveTcpSession owner)
         {

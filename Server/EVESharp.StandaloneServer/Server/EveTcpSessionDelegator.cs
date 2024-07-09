@@ -48,7 +48,11 @@ namespace EVESharp.StandaloneServer.Server
             {
                 LowLevelVersionExchange handshake = data;
                 delegateType = nameof (LowLevelVersionExchange);
-                _coreMessaging.LowLevelExchangeHandler.Handle (handshake, owner);
+                _coreMessaging.HandleCore<LowLevelVersionExchange, object> (
+                    CoreMessageType.LowLevelVersionExchange,
+                    handshake,
+                    owner
+                );
             });
 
             if (delegateType == null)
@@ -58,7 +62,11 @@ namespace EVESharp.StandaloneServer.Server
                 {
                     AuthenticationReq authReq = data;
                     delegateType = nameof (AuthenticationReq);
-                    _coreMessaging.LoginHandler.Handle (authReq, owner);
+                    _coreMessaging.HandleCore<AuthenticationReq, AuthenticationRsp> (
+                        CoreMessageType.Login,
+                        authReq,
+                        owner
+                    );
                 });
             }
 
