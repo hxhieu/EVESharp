@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EVESharp.StandaloneServer.Messaging
 {
-    internal enum CoreMessageType
+    internal enum CoreMessageHandler
     {
         LowLevelVersionExchange,
         Login
@@ -12,16 +12,16 @@ namespace EVESharp.StandaloneServer.Messaging
 
     internal interface ICoreMessagingManager
     {
-        TResult? HandleCore<T, TResult> (CoreMessageType type, T data, IEveTcpSession owner)
+        TResult? HandleCore<T, TResult> (CoreMessageHandler type, T data, IEveTcpSession owner)
             where T : class
             where TResult : class;
     }
 
     internal class CoreMessagingManager (IServiceProvider _serviceProvider) : ICoreMessagingManager
     {
-        public static string GetRegistryKey (CoreMessageType type) => $"{nameof (CoreMessagingManager)}::{type}";
+        public static string GetRegistryKey (CoreMessageHandler type) => $"{nameof (CoreMessagingManager)}::{type}";
 
-        public TResult? HandleCore<T, TResult> (CoreMessageType type, T data, IEveTcpSession owner)
+        public TResult? HandleCore<T, TResult> (CoreMessageHandler type, T data, IEveTcpSession owner)
             where T : class
             where TResult : class
         {

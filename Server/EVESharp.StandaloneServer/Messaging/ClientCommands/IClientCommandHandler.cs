@@ -4,8 +4,8 @@ using EVESharp.Types;
 
 namespace EVESharp.StandaloneServer.Messaging.ClientCommands
 {
-    internal interface IClientCommandHandler
+    internal interface IClientCommandHandler : IKeyedService
     {
-        PyDataType? Handle(ClientCommand command, IEveTcpSession owner);
+        PyDataType? Handle (ClientCommand command, IEveTcpSession owner);
     }
 }

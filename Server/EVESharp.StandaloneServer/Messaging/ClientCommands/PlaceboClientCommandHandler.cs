@@ -5,8 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace EVESharp.StandaloneServer.Messaging.ClientCommands
 {
-    internal class PlaceboClientCommandHandler(ILogger<PlaceboClientCommandHandler> _logger) : IClientCommandHandler
+    internal class PlaceboClientCommandHandler (ILogger<PlaceboClientCommandHandler> _logger) 
+        : IClientCommandHandler
     {
+        public string RegistrationKey => "placebo";
+
         public PyDataType? Handle (ClientCommand command, IEveTcpSession owner)
         {
             _logger.LogDebug (

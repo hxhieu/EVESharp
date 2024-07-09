@@ -6,6 +6,8 @@ namespace EVESharp.StandaloneServer.Messaging.Core
     internal class LowLevelVersionExchangeHandler (ILogger<LowLevelVersionExchangeHandler> _logger)
         : ICoreHandler
     {
+        public string RegistrationKey => CoreMessageHandler.LowLevelVersionExchange.ToString ();
+
         public TResult? Handle<T, TResult> (T data, IEveTcpSession owner)
             where T : class
             where TResult : class
