@@ -362,13 +362,13 @@ internal class Program
                 log.Debug ("Initializing EVESharp Node");
                 log.Verbose ("Initializing EVESharp Node");
 
-                // do some parallel initialization, cache priming and static item loading can be performed in parallel
-                // this makes the changes quicker
-                Task cacheStorage = InitializeCache (log, dependencies);
-                Task itemFactory  = InitializeItemFactory (log, dependencies);
+                //// do some parallel initialization, cache priming and static item loading can be performed in parallel
+                //// this makes the changes quicker
+                //Task cacheStorage = InitializeCache (log, dependencies);
+                //Task itemFactory  = InitializeItemFactory (log, dependencies);
 
-                // wait for all the tasks to be done
-                Task.WaitAll (itemFactory, cacheStorage);
+                //// wait for all the tasks to be done
+                //Task.WaitAll (itemFactory, cacheStorage);
 
                 // register the current machoNet handler
                 IMachoNet machoNet = dependencies.GetInstance <IMachoNet> ();
