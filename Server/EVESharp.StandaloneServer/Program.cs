@@ -1,7 +1,10 @@
-﻿using EVESharp.EVE.Network.Sockets;
+﻿using EVESharp.Database.Entity.Context;
+using EVESharp.EVE.Network.Sockets;
+using EVESharp.StandaloneServer.Database.Extensions;
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.StandaloneServer.Network;
 using EVESharp.StandaloneServer.Server;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,10 +26,30 @@ namespace EVESharp.StandaloneServer
 
             // Configuration options
             builder.Services.Configure<EveServerOptions> (configuration.GetSection (EveServerOptions.ConfigSection));
+            builder.Services.Configure<EveServerAuthOptions> (configuration.GetSection (EveServerAuthOptions.ConfigSection));
 
             // Logging
             var seriLogger = new LoggerConfiguration ().ReadFrom.Configuration (builder.Configuration).CreateLogger ();
             builder.Services.AddSerilog (seriLogger);
+
+            #region Database
+            
+            var connStr = configuration.GetConnectionString("EveSharpDb");
+            var serverVer = ServerVersion.AutoDetect(connStr);
+            builder.Services.AddDbContext<EveSharpDbContext> (dbContextOptions =>
+            {
+                dbContextOptions
+                    .UseMySql (connStr, serverVer)
+                    // TODO: These for debugging, should be feature toggled
+                    //.LogTo (log => seriLogger.Debug (log))
+                    //.EnableSensitiveDataLogging ()
+                    //.EnableDetailedErrors ()
+                ;
+            });
+
+            builder.Services.AddScoped<IAccountRepository, AccountRepository> ();
+
+            #endregion
 
             #region Dependencies
 

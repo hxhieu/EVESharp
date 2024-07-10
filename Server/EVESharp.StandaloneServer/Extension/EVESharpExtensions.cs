@@ -9,6 +9,7 @@ using EVESharp.Node.Configuration;
 using EVESharp.Node.Server.Shared.Transports;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using EveSharpDatabase = EVESharp.Database.Database;
 using MachoNetWrapper = EVESharp.StandaloneServer.Network.MachoNet;
 
 namespace EVESharp.StandaloneServer
@@ -32,7 +33,7 @@ namespace EVESharp.StandaloneServer
             // Common
             services.AddSingleton (() => logger);
             services.AddTransient (_ => new HttpClient ());
-            services.AddSingleton<IDatabase, Database.Database> ();
+            services.AddSingleton<IDatabase, EveSharpDatabase> ();
             services.AddSingleton<ITransportManager, TransportManager> ();
             services.AddSingleton<IMessageQueue<LoginQueueEntry>, LoginQueue> ();
             services.AddSingleton<IQueueProcessor<LoginQueueEntry>, ThreadedProcessor<LoginQueueEntry>> ();

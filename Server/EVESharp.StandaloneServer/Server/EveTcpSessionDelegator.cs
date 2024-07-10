@@ -27,7 +27,8 @@ namespace EVESharp.StandaloneServer.Server
             catch (Exception e) when (
                 e is SessionMessageHandlingError ||
                 e is NotImplementedException ||
-                e is ArgumentNullException
+                e is ArgumentNullException ||
+                e is InvalidOperationException
             )
             { throw; }
             catch { /* Intentionally ignore this so it can flow to the next one */  }
@@ -42,7 +43,7 @@ namespace EVESharp.StandaloneServer.Server
             // Also quite important NOT to change the checking order
 
             string? delegateType = null;
-            PyDataType? sentData = null;
+            PyDataType? respData = null;
 
             TryHandleMessage (() =>
             {
@@ -62,7 +63,7 @@ namespace EVESharp.StandaloneServer.Server
                 {
                     AuthenticationReq authReq = data;
                     delegateType = nameof (AuthenticationReq);
-                    _coreMessaging.HandleCore<AuthenticationReq, AuthenticationRsp> (
+                    respData = _coreMessaging.HandleCore<AuthenticationReq, PyDataType> (
                         CoreMessageHandler.Login,
                         authReq,
                         owner
@@ -81,7 +82,7 @@ namespace EVESharp.StandaloneServer.Server
                         return;
                     }
                     delegateType = nameof (ClientCommand);
-                    sentData = _clientCommand.HandleCommand (command, owner);
+                    respData = _clientCommand.HandleCommand (command, owner);
                 });
             }
 
@@ -100,6 +101,12 @@ namespace EVESharp.StandaloneServer.Server
             if (delegateType == null)
             {
                 throw new NotImplementedException ($"Received data not yet implemented. {data}");
+            }
+
+            // If any clean up resp we need to send
+            if (respData != null)
+            {
+                owner.SendData (respData);
             }
         }
     }

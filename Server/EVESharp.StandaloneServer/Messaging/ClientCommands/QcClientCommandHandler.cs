@@ -20,13 +20,11 @@ namespace EVESharp.StandaloneServer.Messaging.ClientCommands
             );
 
             // Will response with the number of current login sessions - this session itself
-            var sentData =  new PyInteger(owner.Server.LoginCount - 1);
-
-            owner.SendData (sentData);
+            owner.SendData (new PyInteger (owner.Server.LoginCount - 1));
             // Also its required to send the handshake package right afterward
             owner.SendData (CommonPacket.LowLevelExchange (owner.Server.UserCount));
 
-            return sentData;
+            return null;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace EVESharp.StandaloneServer.Server
 {
     internal interface IEveTcpSession
     {
-        void SendData (PyDataType data);
+        void SendData (PyDataType data, bool async = true);
         bool IsLoggedIn { get; set; }
         IEveServer Server { get; }
     }
@@ -28,11 +28,18 @@ namespace EVESharp.StandaloneServer.Server
         public bool IsLoggedIn { get; set; }
         public new IEveServer Server => _server;
 
-        public void SendData (PyDataType data)
+        public void SendData (PyDataType data, bool async = true)
         {
             var buffer = _messageDecoder.Encode ( data );
-            SendAsync (buffer);
-            _logger.LogDebug ("SENT {Data}", data.ToString ());
+            if (async)
+            {
+                SendAsync (buffer);
+            }
+            else
+            {
+                Send (buffer);
+            }
+            _logger.LogDebug ("SENT {Data} {Async}", data.ToString (), async ? "async" : "sync");
         }
 
         protected override void OnConnected ()

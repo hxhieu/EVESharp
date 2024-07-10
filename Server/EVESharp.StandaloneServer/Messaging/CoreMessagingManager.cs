@@ -25,7 +25,8 @@ namespace EVESharp.StandaloneServer.Messaging
             where T : class
             where TResult : class
         {
-            var handler = _serviceProvider.GetKeyedService<ICoreHandler> (GetRegistryKey (type))
+            using var scope = _serviceProvider.CreateScope();
+            var handler = scope.ServiceProvider.GetKeyedService<ICoreHandler> (GetRegistryKey (type))
                ?? throw new NotImplementedException (
                    $"Handler for {type} is not yet implemented"
                );

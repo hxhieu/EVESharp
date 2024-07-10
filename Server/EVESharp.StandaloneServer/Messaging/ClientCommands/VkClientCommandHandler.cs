@@ -14,16 +14,12 @@ namespace EVESharp.StandaloneServer.Messaging.ClientCommands
         public PyDataType? Handle (ClientCommand command, IEveTcpSession owner)
         {
             _logger.LogDebug (
-                "HANDLING {Type} {Command}",
+                "HANDLING {Type} {Command} _VOID_",
                 nameof (ClientCommand),
                 command.Command
             );
 
-            // TODO: What to handle on 'VK' command
-            var sentData =  CommonPacket.None;
-            owner.SendData (sentData);
-
-            return sentData;
+            return null;
         }
     }
 }

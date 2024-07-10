@@ -18,12 +18,9 @@ namespace EVESharp.StandaloneServer.Messaging.ClientCommands
                 command.Command
             );
 
-            // Will response with the number of current login sessions
-            var sentData =  new PyString("OK CC");
+            owner.SendData (new PyString ("OK CC"));
 
-            owner.SendData (sentData);
-
-            return sentData;
+            return null;
         }
     }
 }
