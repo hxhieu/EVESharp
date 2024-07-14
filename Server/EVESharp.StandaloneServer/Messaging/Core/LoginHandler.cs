@@ -1,10 +1,9 @@
 ﻿using EVESharp.EVE.Packets;
-using EVESharp.StandaloneServer.Database.Extensions;
+using EVESharp.StandaloneServer.Database.Repository;
 using EVESharp.StandaloneServer.Server;
 using EVESharp.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace EVESharp.StandaloneServer.Messaging.Core
 {
@@ -34,23 +33,43 @@ namespace EVESharp.StandaloneServer.Messaging.Core
                 return null;
             }
 
-            var accExists = _accountRepository.GetFirstAsync(x => x.AccountName.ToLower() == req.user_name.ToLower()).Result != null;
+            var existingAcc = _accountRepository.GetFirstAsync(x => x.AccountName.ToLower() == req.user_name.ToLower()).Result;
 
-            if (!accExists && _authOptions.Value.AutoAccount)
+            // Auto create
+            if (existingAcc == null && _authOptions.Value.AutoAccount)
             {
                 throw new NotImplementedException ("Auto account creation is not yet implemented");
             }
 
-            var existingAcc = _accountRepository.Login(req.user_name, req.user_password).Result;
+            //var salt =  BCrypt.Net.BCrypt.GenerateSalt();
+            //var password = BCrypt.Net.BCrypt.HashPassword("1234", salt).ToHex();
+            //var s = salt.ToHex();
 
-            // TODO: If we can separate banned account response?
-            if (existingAcc == null || existingAcc.Banned)
+            if (existingAcc != null && string.IsNullOrWhiteSpace (existingAcc.PasswordV2))
             {
-                owner.SendData (new GPSTransportClosed ("LoginAuthFailed"));
-                return null;
+                // TODO: Redirect user to get new password
+                throw new SessionMessageHandlingError ($"This is a legacy account and it needs to be upgraded");
             }
 
-            throw new NotImplementedException ();
+            // TODO: If we can separate banned account response?
+            try
+            {
+                if (existingAcc == null || !existingAcc.Login (req.user_password) || existingAcc.Banned)
+                {
+                    owner.SendData (new GPSTransportClosed ("LoginAuthFailed"));
+                    return null;
+                }
+
+                // TODO: Send login okay here
+
+                throw new NotImplementedException ();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError (ex, "{Error}", ex.Message);
+                // TODO: Exception feedback to user
+                throw new SessionMessageHandlingError ("Cannot verify account login");
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using EVESharp.Database.Entity.Context;
 using EVESharp.EVE.Network.Sockets;
-using EVESharp.StandaloneServer.Database.Extensions;
+using EVESharp.StandaloneServer.Database.Repository;
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.StandaloneServer.Network;
 using EVESharp.StandaloneServer.Server;
