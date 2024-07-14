@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EVESharp.Database.Entity.Migrations
 {
     [DbContext(typeof(EveSharpDbContext))]
-    [Migration("20240714071400_AddAccountPasswordV2")]
+    [Migration("20240714075743_AddAccountPasswordV2")]
     partial class AddAccountPasswordV2
     {
         /// <inheritdoc />
@@ -55,9 +55,14 @@ namespace EVESharp.Database.Entity.Migrations
                         .HasColumnType("blob")
                         .HasColumnName("password");
 
+                    b.Property<string>("PasswordSalt")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("password_salt");
+
                     b.Property<string>("PasswordV2")
-                        .HasMaxLength(80)
-                        .HasColumnType("varchar(80)")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
                         .HasColumnName("password_v2");
 
                     b.Property<long>("ProxyNodeId")

@@ -52,9 +52,14 @@ namespace EVESharp.Database.Entity.Migrations
                         .HasColumnType("blob")
                         .HasColumnName("password");
 
+                    b.Property<string>("PasswordSalt")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("password_salt");
+
                     b.Property<string>("PasswordV2")
-                        .HasMaxLength(80)
-                        .HasColumnType("varchar(80)")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
                         .HasColumnName("password_v2");
 
                     b.Property<long>("ProxyNodeId")

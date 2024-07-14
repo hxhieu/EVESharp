@@ -34,6 +34,10 @@ public partial class Account
     public long ProxyNodeId { get; set; }
 
     [Column ("password_v2")]
-    [MaxLength (80)]
+    [MaxLength (200)]
     public string? PasswordV2 { get; set; }
+
+    [Column ("password_salt")]
+    [MaxLength (100)]
+    public string? PasswordSalt { get; set; }
 }
