@@ -7,10 +7,25 @@ using System.Net.Sockets;
 
 namespace EVESharp.StandaloneServer.Server
 {
+    internal enum SessionState
+    {
+        None,
+        /// <summary>
+        /// DB and permission checking
+        /// </summary>
+        Authenticating,
+
+        /// <summary>
+        /// Valid login and need to exchange ack
+        /// </summary>
+        Authenticated,
+        LoggedIn
+    }
+
     internal interface IEveTcpSession
     {
         void SendData (PyDataType data, bool async = true);
-        bool IsLoggedIn { get; set; }
+        SessionState State { get; set; }
         IEveServer Server { get; }
     }
 
@@ -25,8 +40,9 @@ namespace EVESharp.StandaloneServer.Server
         IEveTcpSessionDelegator _sessionDelegator
     ) : TcpSession (_server.GetInstance<TcpServer> ()), IEveTcpSession
     {
-        public bool IsLoggedIn { get; set; }
         public new IEveServer Server => _server;
+
+        public SessionState State { get; set; }
 
         public void SendData (PyDataType data, bool async = true)
         {
@@ -45,6 +61,8 @@ namespace EVESharp.StandaloneServer.Server
         protected override void OnConnected ()
         {
             _logger.LogInformation ("TCP session {Id} -> connected!", Id);
+            State = SessionState.Authenticating;
+
             // Send handshake
             try
             {

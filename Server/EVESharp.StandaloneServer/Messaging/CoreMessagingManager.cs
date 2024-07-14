@@ -7,7 +7,8 @@ namespace EVESharp.StandaloneServer.Messaging
     internal enum CoreMessageHandler
     {
         LowLevelVersionExchange,
-        Login
+        Login,
+        LoginAckRequest
     }
 
     internal interface ICoreMessagingManager

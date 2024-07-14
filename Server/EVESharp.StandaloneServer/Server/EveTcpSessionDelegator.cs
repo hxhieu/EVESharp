@@ -45,55 +45,62 @@ namespace EVESharp.StandaloneServer.Server
             string? delegateType = null;
             PyDataType? respData = null;
 
-            TryHandleMessage (() =>
+            // TODO: Maybe extract these as steps?
+            if (owner.State == SessionState.Authenticating)
             {
-                LowLevelVersionExchange handshake = data;
-                delegateType = nameof (LowLevelVersionExchange);
-                _coreMessaging.HandleCore<LowLevelVersionExchange, object> (
-                    CoreMessageHandler.LowLevelVersionExchange,
-                    handshake,
-                    owner
-                );
-            });
-
-            if (delegateType == null)
-            {
-                // AuthenticationReq Tuple[2]
                 TryHandleMessage (() =>
                 {
-                    AuthenticationReq authReq = data;
-                    delegateType = nameof (AuthenticationReq);
-                    respData = _coreMessaging.HandleCore<AuthenticationReq, PyDataType> (
-                        CoreMessageHandler.Login,
-                        authReq,
+                    LowLevelVersionExchange handshake = data;
+                    delegateType = nameof (LowLevelVersionExchange);
+                    _coreMessaging.HandleCore<LowLevelVersionExchange, object> (
+                        CoreMessageHandler.LowLevelVersionExchange,
+                        handshake,
                         owner
                     );
                 });
-            }
 
-            if (delegateType == null)
-            {
-                // ClientCommand Tuple[2..3]
-                TryHandleMessage (() =>
+                if (delegateType == null)
                 {
-                    ClientCommand command = data;
-                    if (string.IsNullOrWhiteSpace (command.Command.Replace ("\0", string.Empty)))
+                    // AuthenticationReq Tuple[2]
+                    TryHandleMessage (() =>
                     {
-                        return;
-                    }
-                    delegateType = nameof (ClientCommand);
-                    respData = _clientCommand.HandleCommand (command, owner);
-                });
+                        AuthenticationReq authReq = data;
+                        delegateType = nameof (AuthenticationReq);
+                        respData = _coreMessaging.HandleCore<AuthenticationReq, PyDataType> (
+                            CoreMessageHandler.Login,
+                            authReq,
+                            owner
+                        );
+                    });
+                }
+
+                if (delegateType == null)
+                {
+                    // ClientCommand Tuple[2..3]
+                    TryHandleMessage (() =>
+                    {
+                        ClientCommand command = data;
+                        if (string.IsNullOrWhiteSpace (command.Command.Replace ("\0", string.Empty)))
+                        {
+                            return;
+                        }
+                        delegateType = nameof (ClientCommand);
+                        respData = _clientCommand.HandleCommand (command, owner);
+                    });
+                }
             }
 
-            if (delegateType == null)
+            if (owner.State == SessionState.Authenticated)
             {
                 TryHandleMessage (() =>
                 {
-                    PyPacket packet = data;
-                    delegateType = nameof (PyPacket);
-
-                    // TODO: Stuff});
+                    AuthenticationAckReq loginAckRequest = data;
+                    delegateType = nameof (AuthenticationAckReq);
+                    _coreMessaging.HandleCore<AuthenticationAckReq, object> (
+                        CoreMessageHandler.LoginAckRequest,
+                        loginAckRequest,
+                        owner
+                    );
                 });
             }
 

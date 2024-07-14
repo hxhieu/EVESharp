@@ -23,7 +23,7 @@ namespace EVESharp.StandaloneServer.Server
         private readonly IServiceProvider _serviceProvider = _serviceProvider;
 
         // Count not logged in sessions
-        public int LoginCount => Sessions.Count (x => ((x.Value as IEveTcpSession)?.IsLoggedIn ?? false) == false);
+        public int LoginCount => Sessions.Count (x => x.Value is IEveTcpSession { State: SessionState.LoggedIn });
         public int UserCount => Sessions.Count - LoginCount;
 
         public void Initialize ()

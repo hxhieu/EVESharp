@@ -4,6 +4,7 @@ using EVESharp.StandaloneServer.Server;
 using EVESharp.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Version = EVESharp.EVE.Data.Version;
 
 namespace EVESharp.StandaloneServer.Messaging.Core
 {
@@ -24,6 +25,13 @@ namespace EVESharp.StandaloneServer.Messaging.Core
                 throw new SessionMessageHandlingError ($"Cannot parse {nameof (AuthenticationReq)}");
             }
 
+            _logger.LogDebug (
+               "HANDLING {Type}",
+               nameof (LoginHandler)
+            );
+
+            owner.State = SessionState.Authenticating;
+
             // Cannot process hashed password yet...
             if (req.user_password is null)
             {
@@ -41,10 +49,6 @@ namespace EVESharp.StandaloneServer.Messaging.Core
                 throw new NotImplementedException ("Auto account creation is not yet implemented");
             }
 
-            //var salt =  BCrypt.Net.BCrypt.GenerateSalt();
-            //var password = BCrypt.Net.BCrypt.HashPassword("1234", salt).ToHex();
-            //var s = salt.ToHex();
-
             if (existingAcc != null && string.IsNullOrWhiteSpace (existingAcc.PasswordV2))
             {
                 // TODO: Redirect user to get new password
@@ -60,9 +64,32 @@ namespace EVESharp.StandaloneServer.Messaging.Core
                     return null;
                 }
 
-                // TODO: Send login okay here
+                // String "None" marshaled
+                byte [] func_marshaled_code = {0x74, 0x04, 0x00, 0x00, 0x00, 0x4E, 0x6F, 0x6E, 0x65};
 
-                throw new NotImplementedException ();
+                // Send login okay here
+                var authResponse = new AuthenticationRsp
+                {
+                    serverChallenge = "",
+                    func_marshaled_code = func_marshaled_code,
+                    verification = false,
+                    cluster_usercount = owner.Server.UserCount,
+                    //rsp.proxy_nodeid = this.MachoNet.NodeID;
+                    user_logonqueueposition = 1,
+                    challenge_responsehash = "55087",
+
+                    macho_version = Version.MACHO_VERSION,
+                    boot_version = Version.VERSION,
+                    boot_build = Version.BUILD,
+                    boot_codename = Version.CODENAME,
+                    boot_region = Version.REGION
+                };
+
+                owner.SendData (authResponse);
+
+                owner.State = SessionState.Authenticated;
+
+                return null;
             }
             catch (Exception ex)
             {
