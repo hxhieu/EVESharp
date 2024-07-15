@@ -1,13 +1,17 @@
 ﻿using EVESharp.Database.Account;
+using EVESharp.Database.Types;
 using EVESharp.EVE.Packets;
+using EVESharp.StandaloneServer.Database.Repository;
 using EVESharp.StandaloneServer.Server;
+using EVESharp.Types;
 using EVESharp.Types.Collections;
 using Microsoft.Extensions.Logging;
 
 namespace EVESharp.StandaloneServer.Messaging.Core
 {
     internal class AuthenticationAckHandler (
-        ILogger<AuthenticationAckHandler> _logger
+        ILogger<AuthenticationAckHandler> _logger,
+        ILiveUpdateRepository _liveUpdateRepo
     ) : ICoreHandler
     {
         public string RegistrationKey => throw new NotImplementedException ();
@@ -26,20 +30,38 @@ namespace EVESharp.StandaloneServer.Messaging.Core
                nameof (AuthenticationAckHandler)
             );
 
+            // Fetch and build live updates from DB
+            PyList <PyObjectData> liveUpdates = [];
+
+            var liveUpdateEntities = _liveUpdateRepo.GetAllAsync().Result;
+            liveUpdateEntities.ForEach (x =>
+            {
+                PyDictionary entry = [];
+                PyDictionary code  = new ()
+                {
+                    ["code"] = x.Code,
+                    ["codeType"] = x.CodeType,
+                    ["methodName"] = x.MethodName,
+                    ["objectID"] = x.ObjectId
+                };
+                entry ["code"] = KeyVal.FromDictionary (code);
+                liveUpdates.Add (KeyVal.FromDictionary (entry));
+            });
+
             // Send ack
             // Handshake sent when we are mostly in
             var ack = new HandshakeAck
             {
-                //LiveUpdates    = this.MachoNet.LiveUpdates,
-                //JIT            = this.Session.LanguageID,
-                //UserID         = this.Session.UserID,
+                LiveUpdates    = liveUpdates,
+                JIT            = owner.Session.LanguageID,
+                UserID         = owner.Session.UserID,
                 MaxSessionTime = null,
                 UserType       = AccountType.USER,
-                //Role           = this.Session.Role,
-                //Address        = this.Session.Address,
+                Role           = owner.Session.Role,
+                Address        = owner.Session.Address,
                 InDetention    = null,
-                ClientHashes   = new PyList (),
-                //UserClientID   = this.Session.UserID
+                ClientHashes   = [],
+                UserClientID   = owner.Session.UserID
             };
 
             owner.SendData (ack);

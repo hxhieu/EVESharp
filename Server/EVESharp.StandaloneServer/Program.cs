@@ -1,4 +1,5 @@
-﻿using EVESharp.Database.Entity.Context;
+﻿using AutoMapper;
+using EVESharp.Database.Entity.Context;
 using EVESharp.EVE.Network.Sockets;
 using EVESharp.StandaloneServer.Database.Repository;
 using EVESharp.StandaloneServer.Messaging;
@@ -33,35 +34,36 @@ namespace EVESharp.StandaloneServer
             builder.Services.AddSerilog (seriLogger);
 
             #region Database
-            
+
             var connStr = configuration.GetConnectionString("EveSharpDb");
             var serverVer = ServerVersion.AutoDetect(connStr);
             builder.Services.AddDbContext<EveSharpDbContext> (dbContextOptions =>
             {
                 dbContextOptions
                     .UseMySql (connStr, serverVer)
-                    // TODO: These for debugging, should be feature toggled
-                    //.LogTo (log => seriLogger.Debug (log))
-                    //.EnableSensitiveDataLogging ()
-                    //.EnableDetailedErrors ()
+                // TODO: These for debugging, should be feature toggled
+                //.LogTo (log => seriLogger.Debug (log))
+                //.EnableSensitiveDataLogging ()
+                //.EnableDetailedErrors ()
                 ;
-            });
-
-            builder.Services.AddScoped<IAccountRepository, AccountRepository> ();
+            }).AddRepositories ();
 
             #endregion
 
             #region Dependencies
 
+            // Mapper
+            builder.Services.AddAutoMapper (typeof (Program).Assembly);
+
             // Session is an important thing and it would require a lot of services
             builder.Services.AddTransient (services =>
             {
-                using var scope = services.CreateScope();
                 return new EveTcpSession (
-                    scope.ServiceProvider.GetRequiredService<EveTcpServer> (),
-                    scope.ServiceProvider.GetRequiredService<ILogger<EveTcpSession>> (),
-                    scope.ServiceProvider.GetRequiredService<IMessageDecoder> (),
-                    scope.ServiceProvider.GetRequiredService<IEveTcpSessionDelegator> ()
+                    services.GetRequiredService<EveTcpServer> (),
+                    services.GetRequiredService<ILogger<EveTcpSession>> (),
+                    services.GetRequiredService<IMessageDecoder> (),
+                    services.GetRequiredService<IEveTcpSessionDelegator> (),
+                    services.GetRequiredService<IMapper>()
                 );
             });
 
@@ -72,14 +74,13 @@ namespace EVESharp.StandaloneServer
             builder.Services.AddClientCommandHandling ();
 
             builder.Services.AddSingleton<IMessageDecoder, MessageDecoder> ();
-            //builder.Services.AddSingleton<IMessageSender, MessageSender> ();
             builder.Services.AddSingleton<IEveTcpSessionDelegator, EveTcpSessionDelegator> ();
 
             // Default EVESharp single mode services
-            builder.Services.AddEVESharpSingleNodeMachoNet (seriLogger);
+            builder.Services.AddEVESharpSingleNodeMachoNet (seriLogger); // TODO: Remove
 
             // Something else
-            builder.Services.AddSingleton<MachoNetNext> ();
+            builder.Services.AddSingleton<MachoNetNext> (); // TODO: Remove
             builder.Services.AddSingleton<EveTcpServer> ();
 
             #endregion

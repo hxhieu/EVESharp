@@ -31,7 +31,7 @@ namespace EVESharp.StandaloneServer.Messaging.Core
             );
 
             owner.State = SessionState.Authenticating;
-
+            
             // Cannot process hashed password yet...
             if (req.user_password is null)
             {
@@ -55,9 +55,9 @@ namespace EVESharp.StandaloneServer.Messaging.Core
                 throw new SessionMessageHandlingError ($"This is a legacy account and it needs to be upgraded");
             }
 
-            // TODO: If we can separate banned account response?
             try
             {
+                // TODO: If we can separate banned account response?
                 if (existingAcc == null || !existingAcc.Login (req.user_password) || existingAcc.Banned)
                 {
                     owner.SendData (new GPSTransportClosed ("LoginAuthFailed"));
@@ -74,8 +74,7 @@ namespace EVESharp.StandaloneServer.Messaging.Core
                     func_marshaled_code = func_marshaled_code,
                     verification = false,
                     cluster_usercount = owner.Server.UserCount,
-                    //rsp.proxy_nodeid = this.MachoNet.NodeID;
-                    user_logonqueueposition = 1,
+                    user_logonqueueposition = 1, // TODO: Always 1?
                     challenge_responsehash = "55087",
 
                     macho_version = Version.MACHO_VERSION,
@@ -88,6 +87,9 @@ namespace EVESharp.StandaloneServer.Messaging.Core
                 owner.SendData (authResponse);
 
                 owner.State = SessionState.Authenticated;
+
+                // Update session
+                owner.SetAccount (existingAcc);
 
                 return null;
             }

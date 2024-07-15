@@ -1,4 +1,7 @@
-﻿using EVESharp.EVE.Packets;
+﻿using AutoMapper;
+using EVESharp.Database.Entity;
+using EVESharp.EVE.Packets;
+using EVESharp.EVE.Sessions;
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.Types;
 using Microsoft.Extensions.Logging;
@@ -24,25 +27,32 @@ namespace EVESharp.StandaloneServer.Server
 
     internal interface IEveTcpSession
     {
+        string Id { get; }
         void SendData (PyDataType data, bool async = true);
         SessionState State { get; set; }
         IEveServer Server { get; }
+        Session Session { get; }
+        void SetAccount (Account account);
     }
 
     /// <summary>
     /// Extended `NetCoreServer.TcpSession`
     /// </summary>
-    /// <param name="_server"></param>
     internal class EveTcpSession (
         IEveServer _server,
         ILogger<EveTcpSession> _logger,
         IMessageDecoder _messageDecoder,
-        IEveTcpSessionDelegator _sessionDelegator
+        IEveTcpSessionDelegator _sessionDelegator,
+        IMapper _mapper
     ) : TcpSession (_server.GetInstance<TcpServer> ()), IEveTcpSession
     {
         public new IEveServer Server => _server;
 
         public SessionState State { get; set; }
+
+        public Session Session { get; private set; } = [];
+
+        string IEveTcpSession.Id => Id.ToString ();
 
         public void SendData (PyDataType data, bool async = true)
         {
@@ -58,10 +68,17 @@ namespace EVESharp.StandaloneServer.Server
             _logger.LogDebug ("SENT {Data} {Async}", data.ToString (), async ? "async" : "sync");
         }
 
+        public void SetAccount (Account account)
+        {
+            Session = _mapper.Map (account, Session);
+        }
+
         protected override void OnConnected ()
         {
             _logger.LogInformation ("TCP session {Id} -> connected!", Id);
             State = SessionState.Authenticating;
+            // Initial session data
+            Session = _mapper.Map (this, Session);
 
             // Send handshake
             try

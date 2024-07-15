@@ -234,6 +234,7 @@ public class MachoUnauthenticatedTransport : IMachoTransport
     {
         if (PyPacket.IsPyPacket (packet))
         {
+            Console.WriteLine ($"------------------------------------------------------ PyPacket ------------------------------- {packet}");
             this.HandleIdentificationFlow (packet);
 
             return;
