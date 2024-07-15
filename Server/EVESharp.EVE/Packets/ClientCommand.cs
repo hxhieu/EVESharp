@@ -8,19 +8,26 @@ public class ClientCommand
 {
     public string Command { get; }
 
-    public ClientCommand(string command)
+    private static PyDataType _raw;
+
+    public ClientCommand (string command)
     {
         Command = command;
     }
 
-    public static implicit operator ClientCommand(PyDataType data)
+    public static implicit operator ClientCommand (PyDataType data)
     {
+        _raw = data;
+
         PyTuple tuple = data as PyTuple;
 
         if (tuple.Count != 2 && tuple.Count != 3)
-            throw new InvalidDataException("Expected a tuple of two or three elements");
+            throw new InvalidDataException ("Expected a tuple of two or three elements");
 
-        return new ClientCommand(tuple[1] as PyString);
+        // Command is either Tuple.1 or Tuple.2
+        var command = tuple[0] as PyString ?? tuple [1] as PyString;
+
+        return new ClientCommand (command);
     }
 
     public static implicit operator PyDataType (ClientCommand command)
@@ -31,5 +38,10 @@ public class ClientCommand
             [1] = command.Command,
             [2] = null
         };
+    }
+
+    public override string ToString ()
+    {
+        return _raw?.ToString () ?? Command;
     }
 }

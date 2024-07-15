@@ -3,23 +3,33 @@ using Microsoft.Extensions.Logging;
 
 namespace EVESharp.StandaloneServer.Server
 {
+    internal interface IEveServer
+    {
+        T? GetInstance<T> () where T : class;
+        void Initialize ();
+        int LoginCount { get; }
+        int UserCount { get; }
+    }
+
     /// <summary>
     /// Background service to host the server
     /// </summary>
-    /// <param name="logger"></param>
+    /// <param name="_logger"></param>
     /// <param name="eveServer">Singleton instance constructed via the service collection</param>
-    internal sealed class EveServerWorker (ILogger<EveServerWorker> logger, IEveTcpServer eveServer) : IHostedService, IHostedLifecycleService
+    internal sealed class EveServerWorker<TServer> (
+        ILogger<EveServerWorker<TServer>> _logger,
+        TServer _server
+    ) : IHostedService, IHostedLifecycleService where TServer : IEveServer
     {
         public Task StartAsync (CancellationToken cancellationToken)
         {
-            eveServer.Server.Start ();
+            _server.Initialize ();
             return Task.CompletedTask;
         }
 
         public Task StartedAsync (CancellationToken cancellationToken)
         {
             // TODO:
-            logger.LogInformation ("{Service} is listening at :{Port}", nameof (EveServerWorker), eveServer.Server.Port);
             return Task.CompletedTask;
         }
 

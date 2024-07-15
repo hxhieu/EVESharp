@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace EVESharp.Types.Collections;
 
@@ -13,10 +14,10 @@ public class PyTuple : PyDataType, IPyEnumerable<PyDataType>
         get => this.mList [index];
         set => this.mList [index] = value;
     }
-    
-    IPyEnumerator <PyDataType> IPyEnumerable <PyDataType>.GetEnumerator ()
+
+    IPyEnumerator<PyDataType> IPyEnumerable<PyDataType>.GetEnumerator ()
     {
-        return new PyEnumerator <PyDataType> (this.GetEnumerator ());
+        return new PyEnumerator<PyDataType> (this.GetEnumerator ());
     }
 
     public int Count => this.mList.Length;
@@ -28,12 +29,12 @@ public class PyTuple : PyDataType, IPyEnumerable<PyDataType>
 
     public PyTuple (int size)
     {
-        this.mList = new PyDataType[size];
+        this.mList = new PyDataType [size];
     }
 
-    public IEnumerator <PyDataType> GetEnumerator ()
+    public IEnumerator<PyDataType> GetEnumerator ()
     {
-        return ((IEnumerable <PyDataType>) this.mList).GetEnumerator ();
+        return ((IEnumerable<PyDataType>) this.mList).GetEnumerator ();
     }
 
     public override int GetHashCode ()
@@ -46,8 +47,8 @@ public class PyTuple : PyDataType, IPyEnumerable<PyDataType>
         foreach (PyDataType data in this.mList)
         {
             int elementHash = data?.GetHashCode () ?? PyNone.HASH_VALUE;
-            currentHash =  (currentHash ^ elementHash) * mult;
-            mult        += 82520 + length + length; // shift the multiplier
+            currentHash = (currentHash ^ elementHash) * mult;
+            mult += 82520 + length + length; // shift the multiplier
         }
 
         return currentHash + 97531;
@@ -58,7 +59,7 @@ public class PyTuple : PyDataType, IPyEnumerable<PyDataType>
         return this.GetEnumerator ();
     }
 
-    public bool TryGetValue <T> (int key, out T value) where T : PyDataType
+    public bool TryGetValue<T> (int key, out T value) where T : PyDataType
     {
         if (key < this.mList.Length)
         {
@@ -90,7 +91,7 @@ public class PyTuple : PyDataType, IPyEnumerable<PyDataType>
         );
     }
 
-    public static implicit operator PyTuple (List <PyDataType> data)
+    public static implicit operator PyTuple (List<PyDataType> data)
     {
         return data == null ? null : new PyTuple (data.ToArray ());
     }
@@ -98,5 +99,38 @@ public class PyTuple : PyDataType, IPyEnumerable<PyDataType>
     public static implicit operator PyTuple (PyDataType [] data)
     {
         return new PyTuple (data);
+    }
+
+    public override string ToString ()
+    {
+        var type = GetType ();
+        var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: [{Environment.NewLine}");
+
+        foreach (var i in mList)
+        {
+            builder.Append ("\t");
+            var iType = i?.GetType ();
+            if (iType != null)
+            {
+                var toStr = iType.GetMethod("ToString");
+                if (toStr != null)
+                {
+                    var value = (string) toStr.Invoke (i, null);
+                    builder.Append (value);
+                }
+                else
+                {
+                    builder.Append ($"TODO: {iType.Name}");
+                }
+                builder.Append ($"{Environment.NewLine}");
+            }
+            else
+            {
+                builder.Append ($"NULL{Environment.NewLine}");
+            }
+        }
+
+        builder.Append (']');
+        return builder.ToString ();
     }
 }

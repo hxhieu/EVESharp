@@ -58,4 +58,9 @@ public class PyBool : PyDataType
     {
         return new PyInteger (obj.Value ? 1 : 0);
     }
+
+    public override string ToString ()
+    {
+        return $"{GetType().Name}: {Value}";
+    }
 }

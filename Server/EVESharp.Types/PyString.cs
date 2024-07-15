@@ -76,7 +76,7 @@ public class PyString : PyDataType
 
     public override string ToString ()
     {
-        return this.Value;
+        return $"{GetType ().Name}: '{Value}'";
     }
 
     public static PyString Join <T> (char separator, PyList <T> collection) where T : PyDataType

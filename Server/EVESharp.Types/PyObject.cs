@@ -1,4 +1,6 @@
 using EVESharp.Types.Collections;
+using System;
+using System.Text;
 
 namespace EVESharp.Types;
 
@@ -20,5 +22,19 @@ public class PyObject : PyDataType
     public override int GetHashCode ()
     {
         return (this.IsType2 ? 1 : 0) ^ this.Header.GetHashCode () ^ this.List.GetHashCode () ^ this.Dictionary.GetHashCode () ^ 0x36120485;
+    }
+
+    public override string ToString ()
+    {
+        var type = GetType ();
+        var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: {{{Environment.NewLine}");
+
+        builder.Append('\t').Append("IsType2: ").Append(IsType2).Append(Environment.NewLine);
+        builder.Append ('\t').Append ("Header: ").Append (Header.ToString()).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("List: ").Append (List.ToString ()).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("Dictionary: ").Append (Dictionary.ToString ()).Append (Environment.NewLine);
+
+        builder.Append ('}');
+        return builder.ToString ();
     }
 }

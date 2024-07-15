@@ -70,6 +70,7 @@ public class EVESocket : IEVESocket
 
     private void ProcessInputData ()
     {
+        Console.WriteLine ($"------ ProcessInputData packet count {this.Packetizer.PacketCount} ------");
         // no data received callback means the data cannot be processed yet
         if (this.DataReceived is null)
             return;
@@ -91,6 +92,7 @@ public class EVESocket : IEVESocket
 
     protected void OnDataReceived (PyDataType data)
     {
+        Console.WriteLine ($"------ received ------ {data}");
         if (this.DataReceived is not null)
             this.DataReceived (data);
     }
@@ -181,6 +183,7 @@ public class EVESocket : IEVESocket
 
     public virtual void Send (PyDataType data)
     {
+        Console.WriteLine ($"------ send ------ {data}");
         // convert the data to bytes
         byte [] encodedPacket = Marshal.ToByteArray (data);
         // compress the packet if required
