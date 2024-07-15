@@ -13,8 +13,8 @@ namespace EVESharp.StandaloneServer.Messaging
                     CoreMessagingManager.GetRegistryKey (CoreMessageHandler.LowLevelVersionExchange))
                 .AddKeyedTransient<ICoreHandler, LoginHandler> (
                     CoreMessagingManager.GetRegistryKey (CoreMessageHandler.Login))
-                .AddKeyedTransient<ICoreHandler, AuthenticationAckHandler> (
-                    CoreMessagingManager.GetRegistryKey (CoreMessageHandler.LoginAckRequest))
+                .AddKeyedTransient<ICoreHandler, PostAuthenticationHandler> (
+                    CoreMessagingManager.GetRegistryKey (CoreMessageHandler.PostAuthentication))
             ;
 
             services.AddSingleton<ICoreMessagingManager, CoreMessagingManager> ();

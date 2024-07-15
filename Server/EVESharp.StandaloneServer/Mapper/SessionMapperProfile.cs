@@ -19,6 +19,8 @@ namespace EVESharp.StandaloneServer.Mapper
             CreateMap<EveTcpSession, Session> ()
                 // TODO: Hard code to "EN"
                 .ForMember (dest => dest.LanguageID, opts => opts.MapFrom (_ => "EN"))
+                // TODO: Only has 1 node?
+                .ForMember (dest => dest.NodeID, opts => opts.MapFrom (_ => 1))
                 .ForMember (dest => dest.Address, opts => opts.MapFrom (src => src.Socket.RemoteEndPoint != null ? src.Socket.RemoteEndPoint.ToString () : null))
             ;
         }

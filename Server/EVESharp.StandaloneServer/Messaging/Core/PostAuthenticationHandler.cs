@@ -1,6 +1,7 @@
 ﻿using EVESharp.Database.Account;
 using EVESharp.Database.Types;
 using EVESharp.EVE.Packets;
+using EVESharp.EVE.Types.Network;
 using EVESharp.StandaloneServer.Database.Repository;
 using EVESharp.StandaloneServer.Server;
 using EVESharp.Types;
@@ -9,8 +10,8 @@ using Microsoft.Extensions.Logging;
 
 namespace EVESharp.StandaloneServer.Messaging.Core
 {
-    internal class AuthenticationAckHandler (
-        ILogger<AuthenticationAckHandler> _logger,
+    internal class PostAuthenticationHandler (
+        ILogger<PostAuthenticationHandler> _logger,
         ILiveUpdateRepository _liveUpdateRepo
     ) : ICoreHandler
     {
@@ -27,7 +28,7 @@ namespace EVESharp.StandaloneServer.Messaging.Core
 
             _logger.LogDebug (
                "HANDLING {Type}",
-               nameof (AuthenticationAckHandler)
+               nameof (PostAuthenticationHandler)
             );
 
             // Fetch and build live updates from DB
@@ -65,6 +66,19 @@ namespace EVESharp.StandaloneServer.Messaging.Core
             };
 
             owner.SendData (ack);
+
+            // Initialise session
+            // build the initial state notification
+            PyPacket packet = new(PyPacket.PacketType.SESSIONINITIALSTATENOTIFICATION)
+            {
+                Source      = new PyAddressNode (owner.Session.NodeID),
+                Destination = new PyAddressClient (owner.Session.UserID, 0),
+                UserID      = owner.Session.UserID,
+                Payload     = new SessionInitialStateNotification {Session = owner.Session},
+                OutOfBounds = new PyDictionary {["channel"]                = "sessionchange"}
+            };
+
+            owner.SendData (packet);
 
             owner.State = SessionState.LoggedIn;
 

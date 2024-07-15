@@ -8,7 +8,7 @@ namespace EVESharp.StandaloneServer.Messaging
     {
         LowLevelVersionExchange,
         Login,
-        LoginAckRequest
+        PostAuthentication
     }
 
     internal interface ICoreMessagingManager

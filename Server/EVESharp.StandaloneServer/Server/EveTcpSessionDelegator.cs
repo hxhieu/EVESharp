@@ -1,5 +1,4 @@
 ﻿using EVESharp.EVE.Packets;
-using EVESharp.EVE.Types.Network;
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.Types;
 using Microsoft.Extensions.Logging;
@@ -34,74 +33,99 @@ namespace EVESharp.StandaloneServer.Server
             catch { /* Intentionally ignore this so it can flow to the next one */  }
         }
 
-        public void Received (PyDataType data, IEveTcpSession owner)
+        private (string?, PyDataType?) HandleAuthentication (PyDataType data, IEveTcpSession owner)
         {
-            ArgumentNullException.ThrowIfNull (owner, nameof (owner));
+            string? delegateType = null;
+            PyDataType? respData = null;
 
             // Try cascading processing the received data
             // It is pretty ugly because the implicit casts hide all of the validations
             // Also quite important NOT to change the checking order
 
+            TryHandleMessage (() =>
+            {
+                LowLevelVersionExchange handshake = data;
+                delegateType = nameof (LowLevelVersionExchange);
+                _coreMessaging.HandleCore<LowLevelVersionExchange, object> (
+                    CoreMessageHandler.LowLevelVersionExchange,
+                    handshake,
+                    owner
+                );
+            });
+
+            if (delegateType == null)
+            {
+                // AuthenticationReq Tuple[2]
+                TryHandleMessage (() =>
+                {
+                    AuthenticationReq authReq = data;
+                    delegateType = nameof (AuthenticationReq);
+                    respData = _coreMessaging.HandleCore<AuthenticationReq, PyDataType> (
+                        CoreMessageHandler.Login,
+                        authReq,
+                        owner
+                    );
+                });
+            }
+
+            if (delegateType == null)
+            {
+                // ClientCommand Tuple[2..3]
+                TryHandleMessage (() =>
+                {
+                    ClientCommand command = data;
+                    if (string.IsNullOrWhiteSpace (command.Command.Replace ("\0", string.Empty)))
+                    {
+                        return;
+                    }
+                    delegateType = nameof (ClientCommand);
+                    respData = _clientCommand.HandleCommand (command, owner);
+                });
+            }
+
+            return (delegateType, respData);
+        }
+
+        private (string?, PyDataType?) HandlePostAuthentication (PyDataType data, IEveTcpSession owner)
+        {
             string? delegateType = null;
             PyDataType? respData = null;
 
-            // TODO: Maybe extract these as steps?
-            if (owner.State == SessionState.Authenticating)
+            // Try cascading processing the received data
+            // It is pretty ugly because the implicit casts hide all of the validations
+            // Also quite important NOT to change the checking order
+
+            TryHandleMessage (() =>
             {
-                TryHandleMessage (() =>
-                {
-                    LowLevelVersionExchange handshake = data;
-                    delegateType = nameof (LowLevelVersionExchange);
-                    _coreMessaging.HandleCore<LowLevelVersionExchange, object> (
-                        CoreMessageHandler.LowLevelVersionExchange,
-                        handshake,
-                        owner
-                    );
-                });
+                AuthenticationAckReq loginAckRequest = data;
+                delegateType = nameof (AuthenticationAckReq);
+                _coreMessaging.HandleCore<AuthenticationAckReq, object> (
+                    CoreMessageHandler.PostAuthentication,
+                    loginAckRequest,
+                    owner
+                );
+            });
 
-                if (delegateType == null)
-                {
-                    // AuthenticationReq Tuple[2]
-                    TryHandleMessage (() =>
-                    {
-                        AuthenticationReq authReq = data;
-                        delegateType = nameof (AuthenticationReq);
-                        respData = _coreMessaging.HandleCore<AuthenticationReq, PyDataType> (
-                            CoreMessageHandler.Login,
-                            authReq,
-                            owner
-                        );
-                    });
-                }
+            return (delegateType, respData);
+        }
 
-                if (delegateType == null)
-                {
-                    // ClientCommand Tuple[2..3]
-                    TryHandleMessage (() =>
-                    {
-                        ClientCommand command = data;
-                        if (string.IsNullOrWhiteSpace (command.Command.Replace ("\0", string.Empty)))
-                        {
-                            return;
-                        }
-                        delegateType = nameof (ClientCommand);
-                        respData = _clientCommand.HandleCommand (command, owner);
-                    });
-                }
-            }
+        public void Received (PyDataType data, IEveTcpSession owner)
+        {
+            ArgumentNullException.ThrowIfNull (owner, nameof (owner));
 
-            if (owner.State == SessionState.Authenticated)
+            string? delegateType = null;
+            PyDataType? respData = null;
+
+            switch (owner.State)
             {
-                TryHandleMessage (() =>
-                {
-                    AuthenticationAckReq loginAckRequest = data;
-                    delegateType = nameof (AuthenticationAckReq);
-                    _coreMessaging.HandleCore<AuthenticationAckReq, object> (
-                        CoreMessageHandler.LoginAckRequest,
-                        loginAckRequest,
-                        owner
-                    );
-                });
+                case SessionState.Authenticating:
+                    (delegateType, respData) = HandleAuthentication (data, owner);
+                    break;
+                case SessionState.Authenticated:
+                    (delegateType, respData) = HandlePostAuthentication (data, owner);
+                    break;
+                case SessionState.LoggedIn:
+                    break;
             }
 
             // If we need more handlers
