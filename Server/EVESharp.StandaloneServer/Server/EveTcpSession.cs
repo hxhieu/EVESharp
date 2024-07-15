@@ -111,7 +111,7 @@ namespace EVESharp.StandaloneServer.Server
                 var totalPacket = packets.Count();
 
                 _logger.LogDebug (
-                    "--------------------------{NewLine}RECEIVED PACKET(S) {Total}",
+                    "--------------------------{NewLine}RECEIVED DATA {Total}",
                     Environment.NewLine,
                     totalPacket
                 );

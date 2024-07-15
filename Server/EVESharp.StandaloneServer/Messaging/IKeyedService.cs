@@ -2,6 +2,6 @@
 {
     internal interface IKeyedService
     {
-        string RegistrationKey { get; }
+        static string? RegistrationKey { get; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using EVESharp.EVE.Packets;
+﻿using AutoMapper;
+using EVESharp.EVE.Packets;
+using EVESharp.EVE.Types.Network;
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.Types;
 using Microsoft.Extensions.Logging;
@@ -13,7 +15,9 @@ namespace EVESharp.StandaloneServer.Server
     internal sealed class EveTcpSessionDelegator (
         ILogger<EveTcpSessionDelegator> _logger,
         IClientCommandManager _clientCommand,
-        ICoreMessagingManager _coreMessaging
+        ICoreMessagingManager _coreMessaging,
+        IPackageHandlingManager _packageHandling,
+        IMapper _mapper
     ) : IEveTcpSessionDelegator
     {
         private static void TryHandleMessage (Action action)
@@ -109,6 +113,38 @@ namespace EVESharp.StandaloneServer.Server
             return (delegateType, respData);
         }
 
+        private (string?, PyDataType?) HandlePackage (PyDataType packet, IEveTcpSession owner)
+        {
+            string? delegateType = nameof(PyPacket);
+            PyDataType? respData = null;
+
+            if (packet is PyObject)
+                throw new SessionMessageHandlingError ("Got exception from client");
+
+            PyPacket pyPacket = packet;
+
+            // replace the address if specific situations occur (why is CCP doing it like this?)
+            if (pyPacket.Type == PyPacket.PacketType.NOTIFICATION && pyPacket.Source is PyAddressNode)
+                pyPacket.Source = new PyAddressClient (owner.Session.UserID);
+
+            // ensure the source address is right as it cannot be trusted
+            if (pyPacket.Source is not PyAddressClient source)
+                throw new SessionMessageHandlingError ("Received a packet from client without a source client address");
+            if (pyPacket.UserID != owner.Session.UserID)
+                throw new SessionMessageHandlingError ("Received a packet coming from a client trying to spoof it's userID");
+
+            // ensure the clientId is set in the PyAddressClient
+            source.ClientID = owner.Session.UserID;
+
+            // Handle the package
+            // The package can be handled when its corresponding handler is implement
+            // Each handler should extend `IPackageHandler` with the `RegistryKey` set to the package's `HandlerKey`
+            var eveClientPackage = _mapper.Map<EveClientPacket>(pyPacket);
+            respData = _packageHandling.HandlePackage(eveClientPackage, owner);
+
+            return (delegateType, respData);
+        }
+
         public void Received (PyDataType data, IEveTcpSession owner)
         {
             ArgumentNullException.ThrowIfNull (owner, nameof (owner));
@@ -125,6 +161,7 @@ namespace EVESharp.StandaloneServer.Server
                     (delegateType, respData) = HandlePostAuthentication (data, owner);
                     break;
                 case SessionState.LoggedIn:
+                    (delegateType, respData) = HandlePackage (data, owner);
                     break;
             }
 

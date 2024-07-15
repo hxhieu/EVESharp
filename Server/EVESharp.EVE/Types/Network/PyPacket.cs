@@ -1,6 +1,8 @@
-using System.IO;
 using EVESharp.Types;
 using EVESharp.Types.Collections;
+using System;
+using System.IO;
+using System.Text;
 
 namespace EVESharp.EVE.Types.Network;
 
@@ -172,5 +174,21 @@ public class PyPacket
             throw new InvalidDataException ($"Received a packet of type {result.Type} with an unexpected name {objectData.Name}");
 
         return result;
+    }
+
+    public override string ToString ()
+    {
+        var type = GetType ();
+        var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: {{{Environment.NewLine}");
+
+        builder.Append ('\t').Append ("Type: ").Append (Type.ToString ()).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("Source: ").Append (Source.ToString()).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("Destination: ").Append (Destination.ToString ()).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("UserID: ").Append (UserID).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("Payload: ").Append (Payload?.ToString ()).Append (Environment.NewLine);
+        builder.Append ('\t').Append ("OutOfBounds: ").Append (OutOfBounds?.ToString ()).Append (Environment.NewLine);
+
+        builder.Append ('}');
+        return builder.ToString ();
     }
 }

@@ -10,11 +10,11 @@ namespace EVESharp.StandaloneServer.Messaging
             // TODO: Maybe walk the assembly and dynamically register these
             services
                 .AddKeyedTransient<ICoreHandler, LowLevelVersionExchangeHandler> (
-                    CoreMessagingManager.GetRegistryKey (CoreMessageHandler.LowLevelVersionExchange))
+                    CoreMessagingManager.GetRegistryKey (LowLevelVersionExchangeHandler.RegistrationKey))
                 .AddKeyedTransient<ICoreHandler, LoginHandler> (
-                    CoreMessagingManager.GetRegistryKey (CoreMessageHandler.Login))
+                    CoreMessagingManager.GetRegistryKey (LoginHandler.RegistrationKey))
                 .AddKeyedTransient<ICoreHandler, PostAuthenticationHandler> (
-                    CoreMessagingManager.GetRegistryKey (CoreMessageHandler.PostAuthentication))
+                    CoreMessagingManager.GetRegistryKey (PostAuthenticationHandler.RegistrationKey))
             ;
 
             services.AddSingleton<ICoreMessagingManager, CoreMessagingManager> ();

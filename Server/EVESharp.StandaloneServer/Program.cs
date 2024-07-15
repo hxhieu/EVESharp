@@ -71,7 +71,8 @@ namespace EVESharp.StandaloneServer
 
             // Handle client messaging
             builder.Services.AddCoreMessaging ();
-            builder.Services.AddClientCommandHandling ();
+            builder.Services.AddClientCommandHandlers ();
+            builder.Services.AddPackageHandlers ();
 
             builder.Services.AddSingleton<IMessageDecoder, MessageDecoder> ();
             builder.Services.AddSingleton<IEveTcpSessionDelegator, EveTcpSessionDelegator> ();

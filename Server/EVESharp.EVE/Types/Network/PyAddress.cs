@@ -1,6 +1,8 @@
-using System.IO;
 using EVESharp.Types;
 using EVESharp.Types.Collections;
+using System;
+using System.IO;
+using System.Text;
 
 namespace EVESharp.EVE.Types.Network;
 
@@ -61,5 +63,16 @@ public abstract class PyAddress
             return node;
 
         throw new InvalidDataException ();
+    }
+
+    public override string ToString ()
+    {
+        var type = GetType ();
+        var builder = new StringBuilder($"{Environment.NewLine}{type.Name}: {{{Environment.NewLine}");
+
+        builder.Append ('\t').Append ("Type: ").Append (Type.ToString ()).Append (Environment.NewLine);
+
+        builder.Append ('}');
+        return builder.ToString ();
     }
 }

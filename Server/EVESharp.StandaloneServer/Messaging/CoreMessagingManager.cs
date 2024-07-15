@@ -4,32 +4,32 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EVESharp.StandaloneServer.Messaging
 {
-    internal enum CoreMessageHandler
+    internal struct CoreMessageHandler
     {
-        LowLevelVersionExchange,
-        Login,
-        PostAuthentication
+        public const string LowLevelVersionExchange = "LowLevelVersionExchange";
+        public const string Login = "Login";
+        public const string PostAuthentication = "PostAuthentication";
     }
 
     internal interface ICoreMessagingManager
     {
-        TResult? HandleCore<T, TResult> (CoreMessageHandler type, T data, IEveTcpSession owner)
+        TResult? HandleCore<T, TResult> (string type, T data, IEveTcpSession owner)
             where T : class
             where TResult : class;
     }
 
     internal class CoreMessagingManager (IServiceProvider _serviceProvider) : ICoreMessagingManager
     {
-        public static string GetRegistryKey (CoreMessageHandler type) => $"{nameof (CoreMessagingManager)}::{type}";
+        public static string GetRegistryKey (string type) => $"{nameof (CoreMessagingManager)}::{type}";
 
-        public TResult? HandleCore<T, TResult> (CoreMessageHandler type, T data, IEveTcpSession owner)
+        public TResult? HandleCore<T, TResult> (string type, T data, IEveTcpSession owner)
             where T : class
             where TResult : class
         {
             using var scope = _serviceProvider.CreateScope();
             var handler = scope.ServiceProvider.GetKeyedService<ICoreHandler> (GetRegistryKey (type))
                ?? throw new NotImplementedException (
-                   $"Handler for {type} is not yet implemented"
+                   $"{nameof(CoreMessagingManager)} handler for {type} is not yet implemented"
                );
 
             return handler.Handle<T, TResult> (data, owner);

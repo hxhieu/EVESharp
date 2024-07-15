@@ -8,7 +8,7 @@ namespace EVESharp.StandaloneServer.Messaging.ClientCommands
     internal class PlaceboClientCommandHandler (ILogger<PlaceboClientCommandHandler> _logger) 
         : IClientCommandHandler
     {
-        public string RegistrationKey => "placebo";
+        public static string RegistrationKey => "placebo";
 
         public PyDataType? Handle (ClientCommand command, IEveTcpSession owner)
         {

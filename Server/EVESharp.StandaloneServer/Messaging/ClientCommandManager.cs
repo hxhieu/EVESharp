@@ -23,7 +23,7 @@ namespace EVESharp.StandaloneServer.Messaging
         {
             var handler = _serviceProvider.GetKeyedService<IClientCommandHandler> (GetRegistryKey (command.Command))
                ?? throw new NotImplementedException (
-                   $"{nameof (ClientCommand)} '{command.Command}' is not yet implemented"
+                   $"{nameof (ClientCommand)} handler for {command.Command} is not yet implemented"
                );
 
             return handler.Handle (command, owner);

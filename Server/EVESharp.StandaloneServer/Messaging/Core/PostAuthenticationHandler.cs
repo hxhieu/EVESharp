@@ -15,7 +15,7 @@ namespace EVESharp.StandaloneServer.Messaging.Core
         ILiveUpdateRepository _liveUpdateRepo
     ) : ICoreHandler
     {
-        public string RegistrationKey => throw new NotImplementedException ();
+        public static string RegistrationKey => CoreMessageHandler.PostAuthentication;
 
         public TResult? Handle<T, TResult> (T data, IEveTcpSession owner)
             where T : class

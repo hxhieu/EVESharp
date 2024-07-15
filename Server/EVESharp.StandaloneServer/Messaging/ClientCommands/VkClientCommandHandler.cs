@@ -9,7 +9,7 @@ namespace EVESharp.StandaloneServer.Messaging.ClientCommands
         ILogger<VkClientCommandHandler> _logger
     ) : IClientCommandHandler
     {
-        public string RegistrationKey => "VK";
+        public static string RegistrationKey => "VK";
 
         public PyDataType? Handle (ClientCommand command, IEveTcpSession owner)
         {

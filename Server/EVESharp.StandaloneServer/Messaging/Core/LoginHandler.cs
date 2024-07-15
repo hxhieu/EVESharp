@@ -14,7 +14,7 @@ namespace EVESharp.StandaloneServer.Messaging.Core
         IOptions<EveServerAuthOptions> _authOptions
     ) : ICoreHandler
     {
-        public string RegistrationKey => CoreMessageHandler.Login.ToString ();
+        public static string RegistrationKey => CoreMessageHandler.Login;
 
         public TResult? Handle<T, TResult> (T data, IEveTcpSession owner)
             where T : class
