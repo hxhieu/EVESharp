@@ -1,4 +1,5 @@
-﻿using EVESharp.StandaloneServer.Messaging.Package;
+﻿using EVESharp.StandaloneServer.Exceptions;
+using EVESharp.StandaloneServer.Messaging.Package;
 using EVESharp.StandaloneServer.Server;
 using EVESharp.Types;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,10 +22,8 @@ namespace EVESharp.StandaloneServer.Messaging
         public PyDataType? HandlePackage (EveClientPacket packet, IEveTcpSession owner)
         {
             var handler = _serviceProvider.GetKeyedService<IPackageHandler> (GetRegistryKey (packet.HandlerKey))
-               ?? throw new NotImplementedException (
-                   $"{nameof (PackageHandlingManager)} handler for {packet.HandlerKey} is not yet implemented"
-               );
-            
+               ?? throw new PackageNotImplementedException (packet);
+
             _logger.LogDebug ("HANDLING PACKAGE {Packet}", packet.ToString ());
 
             return handler.Handle (packet, owner);

@@ -1,4 +1,5 @@
 ﻿using EVESharp.EVE.Packets;
+using EVESharp.StandaloneServer.Exceptions;
 using EVESharp.StandaloneServer.Messaging.ClientCommands;
 using EVESharp.StandaloneServer.Server;
 using EVESharp.Types;
@@ -22,8 +23,9 @@ namespace EVESharp.StandaloneServer.Messaging
         public PyDataType? HandleCommand (ClientCommand command, IEveTcpSession owner)
         {
             var handler = _serviceProvider.GetKeyedService<IClientCommandHandler> (GetRegistryKey (command.Command))
-               ?? throw new NotImplementedException (
-                   $"{nameof (ClientCommand)} handler for {command.Command} is not yet implemented"
+               ?? throw new ClientGenericErrorException (
+                   $"{nameof (ClientCommand)} handler for {command.Command} is not yet implemented",
+                   owner
                );
 
             return handler.Handle (command, owner);

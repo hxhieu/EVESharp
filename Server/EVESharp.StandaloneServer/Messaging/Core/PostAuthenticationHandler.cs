@@ -23,7 +23,7 @@ namespace EVESharp.StandaloneServer.Messaging.Core
         {
             if (data is not AuthenticationAckReq req)
             {
-                throw new SessionMessageHandlingError ($"Cannot parse {nameof (AuthenticationAckReq)}");
+                throw new CatastropheException ($"Cannot parse {nameof (AuthenticationAckReq)}");
             }
 
             _logger.LogDebug (

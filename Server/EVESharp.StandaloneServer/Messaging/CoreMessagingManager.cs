@@ -1,4 +1,5 @@
-﻿using EVESharp.StandaloneServer.Messaging.Core;
+﻿using EVESharp.StandaloneServer.Exceptions;
+using EVESharp.StandaloneServer.Messaging.Core;
 using EVESharp.StandaloneServer.Server;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,8 +29,9 @@ namespace EVESharp.StandaloneServer.Messaging
         {
             using var scope = _serviceProvider.CreateScope();
             var handler = scope.ServiceProvider.GetKeyedService<ICoreHandler> (GetRegistryKey (type))
-               ?? throw new NotImplementedException (
-                   $"{nameof(CoreMessagingManager)} handler for {type} is not yet implemented"
+               ?? throw new ClientGenericErrorException (
+                   $"{nameof(CoreMessagingManager)} handler for {type} is not yet implemented",
+                   owner
                );
 
             return handler.Handle<T, TResult> (data, owner);

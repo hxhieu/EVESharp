@@ -3,7 +3,6 @@ using EVESharp.Database.Entity.Context;
 using EVESharp.EVE.Network.Sockets;
 using EVESharp.StandaloneServer.Database.Repository;
 using EVESharp.StandaloneServer.Messaging;
-using EVESharp.StandaloneServer.Network;
 using EVESharp.StandaloneServer.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -77,11 +76,7 @@ namespace EVESharp.StandaloneServer
             builder.Services.AddSingleton<IMessageDecoder, MessageDecoder> ();
             builder.Services.AddSingleton<IEveTcpSessionDelegator, EveTcpSessionDelegator> ();
 
-            // Default EVESharp single mode services
-            builder.Services.AddEVESharpSingleNodeMachoNet (seriLogger); // TODO: Remove
-
-            // Something else
-            builder.Services.AddSingleton<MachoNetNext> (); // TODO: Remove
+            // Server
             builder.Services.AddSingleton<EveTcpServer> ();
 
             #endregion
@@ -91,11 +86,8 @@ namespace EVESharp.StandaloneServer
             switch (serverImpl)
             {
                 case ServerImplementation.MachoNetNext:
-                    builder.Services.AddHostedService<EveServerWorker<MachoNetNext>> ();
-                    break;
                 case ServerImplementation.MachoNet:
-                    builder.Services.AddHostedService<EveServerWorker<MachoNet>> ();
-                    break;
+                    throw new NotSupportedException ();
                 default:
                     builder.Services.AddHostedService<EveServerWorker<EveTcpServer>> ();
                     break;

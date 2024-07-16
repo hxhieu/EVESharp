@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EVESharp.EVE.Packets;
 using EVESharp.EVE.Types.Network;
+using EVESharp.StandaloneServer.Exceptions;
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.Types;
 using Microsoft.Extensions.Logging;
@@ -27,14 +28,17 @@ namespace EVESharp.StandaloneServer.Server
                 action ();
             }
             // Throw on known exceptions
-            catch (Exception e) when (
-                e is SessionMessageHandlingError ||
-                e is NotImplementedException ||
-                e is ArgumentNullException ||
-                e is InvalidOperationException
-            )
-            { throw; }
-            catch { /* Intentionally ignore this so it can flow to the next one */  }
+            catch (Exception e)
+                when (
+                    e is CatastropheException ||
+                    e is NotImplementedException ||
+                    e is PackageNotImplementedException ||
+                    e is ClientGenericErrorException ||
+                    e is ArgumentNullException ||
+                    e is InvalidOperationException
+                )
+                { throw; }
+            catch { /* Intentionally ignore all other so it can flow to the next one */  }
         }
 
         private (string?, PyDataType?) HandleAuthentication (PyDataType data, IEveTcpSession owner)
@@ -119,7 +123,7 @@ namespace EVESharp.StandaloneServer.Server
             PyDataType? respData = null;
 
             if (packet is PyObject)
-                throw new SessionMessageHandlingError ("Got exception from client");
+                throw new CatastropheException ("Got exception from client");
 
             PyPacket pyPacket = packet;
 
@@ -129,9 +133,9 @@ namespace EVESharp.StandaloneServer.Server
 
             // ensure the source address is right as it cannot be trusted
             if (pyPacket.Source is not PyAddressClient source)
-                throw new SessionMessageHandlingError ("Received a packet from client without a source client address");
+                throw new CatastropheException ("Received a packet from client without a source client address");
             if (pyPacket.UserID != owner.Session.UserID)
-                throw new SessionMessageHandlingError ("Received a packet coming from a client trying to spoof it's userID");
+                throw new CatastropheException ("Received a packet coming from a client trying to spoof it's userID");
 
             // ensure the clientId is set in the PyAddressClient
             source.ClientID = owner.Session.UserID;
@@ -168,7 +172,7 @@ namespace EVESharp.StandaloneServer.Server
             // If we need more handlers
             if (delegateType == null)
             {
-                throw new NotImplementedException ($"Received data not yet implemented. {data}");
+                throw new ClientGenericErrorException ($"Received data not yet implemented. {data}", owner);
             }
 
             // If any clean up resp we need to send

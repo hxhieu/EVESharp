@@ -2,6 +2,7 @@
 using EVESharp.Database.Entity;
 using EVESharp.EVE.Packets;
 using EVESharp.EVE.Sessions;
+using EVESharp.StandaloneServer.Exceptions;
 using EVESharp.StandaloneServer.Messaging;
 using EVESharp.Types;
 using Microsoft.Extensions.Logging;
@@ -132,9 +133,23 @@ namespace EVESharp.StandaloneServer.Server
             catch (Exception ex)
             {
                 _logger.LogError (ex, "{Error}", ex.Message);
-                // TODO: Will this disconnect the client? If so we need to handle UserError as well.
-                SendData (new GPSTransportClosed (ex.Message));
-                Dispose ();
+
+                // Specific response
+                if (ex is IClientResponseException clientResponseException)
+                {
+                    SendData(clientResponseException.ClientResponse);
+                    return;
+                }
+
+                // Terminated error
+                if (ex is CatastropheException)
+                {
+                    SendData (new GPSTransportClosed (ex.Message));
+                    Dispose ();
+                }
+
+                // Otherwise, response to the client with the generic response
+                SendData(new ClientGenericErrorException (ex.Message, this).ClientResponse);
             }
         }
     }
