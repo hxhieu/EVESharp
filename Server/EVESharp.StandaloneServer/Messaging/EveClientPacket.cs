@@ -7,6 +7,8 @@ namespace EVESharp.StandaloneServer.Messaging
 {
     internal class EveClientPacket : PyPacket
     {
+        public string HandlerNotImplementedError => $"Handler for {HandlerKey} is not implemented";
+
         public PyTuple? PayloadInfo
         {
             get

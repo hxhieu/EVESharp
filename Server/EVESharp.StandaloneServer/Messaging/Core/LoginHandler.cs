@@ -22,7 +22,7 @@ namespace EVESharp.StandaloneServer.Messaging.Core
         {
             if (data is not AuthenticationReq req)
             {
-                throw new SessionMessageHandlingError ($"Cannot parse {nameof (AuthenticationReq)}");
+                throw new CatastropheException ($"Cannot parse {nameof (AuthenticationReq)}");
             }
 
             _logger.LogDebug (
@@ -46,13 +46,13 @@ namespace EVESharp.StandaloneServer.Messaging.Core
             // Auto create
             if (existingAcc == null && _authOptions.Value.AutoAccount)
             {
-                throw new NotImplementedException ("Auto account creation is not yet implemented");
+                throw new CatastropheException ("Auto account creation is not yet implemented");
             }
 
             if (existingAcc != null && string.IsNullOrWhiteSpace (existingAcc.PasswordV2))
             {
                 // TODO: Redirect user to get new password
-                throw new SessionMessageHandlingError ($"This is a legacy account and it needs to be upgraded");
+                throw new CatastropheException ($"This is a legacy account and it needs to be upgraded");
             }
 
             try
@@ -96,8 +96,7 @@ namespace EVESharp.StandaloneServer.Messaging.Core
             catch (Exception ex)
             {
                 _logger.LogError (ex, "{Error}", ex.Message);
-                // TODO: Exception feedback to user
-                throw new SessionMessageHandlingError ("Cannot verify account login");
+                throw new CatastropheException ("Cannot verify account login");
             }
         }
     }

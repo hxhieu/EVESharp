@@ -1,4 +1,5 @@
-﻿using EVESharp.StandaloneServer.Server;
+﻿using EVESharp.StandaloneServer.Exceptions;
+using EVESharp.StandaloneServer.Server;
 using EVESharp.Types;
 
 namespace EVESharp.StandaloneServer.Messaging.Package
@@ -12,7 +13,7 @@ namespace EVESharp.StandaloneServer.Messaging.Package
 
         public PyDataType? Handle (EveClientPacket packet, IEveTcpSession owner)
         {
-            throw new NotImplementedException ();
+            throw new PackageNotImplementedException (packet);
         }
     }
 }
